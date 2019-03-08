@@ -1,0 +1,68 @@
+*** Settings ***
+Documentation     1.robot framework读取Excel文件，并保存为list
+...               2.参考：https://blog.csdn.net/cuipan1234/article/details/62438608
+Library           AppiumLibrary
+Library           ExcelLibrary
+
+*** Keywords ***
+retrun_excel_list_row_valve
+    [Arguments]    ${excel_path}    ${sheet_name}    ${row}    # Excel路径，sheet名，行号
+    [Documentation]    根据sheet名称和列名号返回相应的行值，0代表Excel的第一列，读完@{listRow}是一个list
+    Open Excel    ${excel_path}
+    @{list_row}    Get Row Values    ${sheet_name}    ${row}
+    Log Many    @{list_row}
+    [Return]    @{list_row}
+
+retrun_excel_list_col_valve
+    [Arguments]    ${excel_path}    ${sheet_name}    ${col}    # Excel路径，sheet名，列号
+    [Documentation]    根据sheet名称和列名号返回相应的行值，0代表Excel的第一列，读完@{listCol}是一个list
+    Open Excel    ${excel_path}
+    @{list_col}    Get Column Values    ${sheet_name}    ${col}
+    Log Many    @{list_col}
+    [Return]    @{list_col}
+
+retrun_excel_rows_num
+    [Arguments]    ${excel_path}    ${sheet_name}    # Excel路径，sheet名
+    [Documentation]    根据sheet名称,返回行数
+    Open Excel    ${excel_path}
+    ${row_count}    Get Row Count    ${sheet_name}
+    [Return]    ${row_count}
+
+retrun_read_cell_data_by_coordinates_list
+    [Arguments]    ${row_count}    ${sheet_name}    ${column_count}    # 行数，sheet名，列号
+    [Documentation]    根据sheetname, column, row，返回所有单元格值
+    : FOR    ${row}    IN RANGE    1    ${row_count}
+    \    ${cell_value}    Read Cell Data By Coordinates    ${sheet_name}    ${column_count}    ${row}
+    \    ${row_num}    Evaluate    ${row}+1
+    \    ${column_num}    Evaluate    ${column_count}+1
+    \    log    第${column_num}列第${row_num}行的数据：${cell_value}
+    [Return]    ${cell_value}
+
+retrun_read_cell_data_by_name_list
+    [Arguments]    ${row_count}    ${sheet_name}    ${column_name}    # 行数，sheet名，列名
+    [Documentation]    根据sheetname, cell_name，返回所有单元格值
+    : FOR    ${row}    IN RANGE    1    ${row_count}
+    \    ${cell_value}    Read Cell Data By Name    ${sheet_name}    ${column_name}${row}
+    \    ${row_num}    Evaluate    ${row}+1
+    \    log    列名${column_name}第${row_num}行的数据：${cell_value}
+    [Return]    ${cell_value}
+
+retrun_open_excel_read_cell_data_by_coordinates_list
+    [Arguments]    ${excel_path}    ${sheet_name}    ${column_count}    ${row_count}    #    Excel路径，sheet名，列数，行数
+    [Documentation]    根据sheetname, cell_name，返回所有指定单元格值
+    Open Excel    ${excel_path}
+    ${cell_value}    Read Cell Data By Coordinates    ${sheet_name}    ${column_count}    ${row_count}
+    ${row_num}    Evaluate    ${row_count}+1
+    ${column_num}    Evaluate    ${column_count}+1
+    log    第${column_num}列，第${row_num}行的数据：${cell_value}
+    [Return]    ${cell_value}
+
+get_curdir
+    [Documentation]    测试数据文件所在目录的绝对路径，该参数是大小写敏感的
+    log    获取测试数据文件所在目录的绝对路径：${CURDIR}
+    [Return]    ${CURDIR}
+
+get_execdir
+    [Documentation]    到测试开始执行的目录的绝对路径
+    log    获取到测试开始执行的目录的绝对路径：${EXECDIR}
+    [Return]    ${EXECDIR}

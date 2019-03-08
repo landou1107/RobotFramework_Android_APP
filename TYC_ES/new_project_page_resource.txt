@@ -1,0 +1,74 @@
+*** Settings ***
+Documentation     项目品牌涉及方法
+Library           AppiumLibrary
+Resource          android_element_resource.txt    # Android元素
+Resource          text_resource.txt    # 文本信息
+Resource          check_resource.txt    # 校验文本信息
+Resource          login_page_resource.txt    # 登录相关操作
+Resource          action_resource.txt
+Resource          vip_page_resource.txt    # vip相关操作资源
+
+*** Keywords ***
+project_tag_click
+    [Documentation]    点击公司品牌
+    log    搜索结果点击公司品牌
+    wait_click_element    ${search_companyTitle_elementById}    20s
+    sleep    10s
+    get_elementShouldEnabled    ${companyPage_companyProjectName_elementById}
+    log    进入公司品牌详情页
+    # com.xxxx.skyeye:id/tvshow
+
+project_tags_click_list
+    [Documentation]    左滑和右滑中进入所有公司项目品牌、投资结构进行
+    log    点击所有公司项目品牌、投资结构
+    ${location}=    get_ele_location    ${search_companyTitle_elementById}    # 通过坐标获取位置
+    ${start_end_y}=    get_key_dictionary    ${location}    y    # 通过字典获取元素坐标获取位置
+    ${start_x}=    return_iphone_left_start_x    #972
+    ${end_x}=    return_iphone_left_end_x    #108
+    swipe_left_input    ${search_companyTitle_elementById}    ${companyPage_companyProjectName_elementById}    10    True    ${start_x}    ${start_end_y}
+    ...    ${end_x}    ${start_end_y}
+    # if_swipe_eleTwo_click    ${search_companyTitle_elementById}    ${companyPage_companyProjectName_elementById}    10    True    left
+    # if_swipe_eleOne_click    ${search_companyTitle_elementById}    10    True    right
+
+project_tag_list
+    [Documentation]    遍历公司品牌标签
+    log    遍历公司品牌标签
+    ${length}=    get_list_length    ${projectPage_tag_elementByXpath}    3s
+    # log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    # \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${projectPage_tag_elementByXpath}    ${index}    5s
+    \    log    ${get_ele}
+    \    return_get_text    ${get_ele}
+    \    click_element    ${get_ele}
+    \    sleep    5s
+    \    get_elementShouldEnabled    ${projectTagPage_titleCount_elementById}
+    \    Capture Page Screenshot    # ${index}.png
+    \    go back
+
+project_detail_swipe
+    [Documentation]    公司品牌详情向上和下滑动，并点击里面的元素
+    if_swipe_ele_click    ${projectPage_showBtn_elementById}    ${companyPage_companyProjectName_elementById}    5    True    up    # 向上滑动
+    if_swipe_ele_click    ${projectPage_showBtn_elementById}    ${companyPage_companyProjectName_elementById}    5    True    down    # 向下滑动
+
+if_swipe_ele_click
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    ${swipe}    # ${ele1}元素1、${ele2}元素2、${num}循环次数、${boolean}是否截图、${swipe}滑动方向
+    [Documentation]    判断滑动操作，并点击里面的元素
+    run keyword if    '${swipe}'=='up'    swipe_up_statusTwo    ${ele_1}    ${ele_2}    ${num}    ${boolean}
+    ...    ELSE IF    '${swipe}'=='down'    swipe_down_statusTwo    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE    log    输入参数有误！    # ...    # ...    # ELSE IF
+    ...    # '${swipe}'=='left'    swipe_left    ${num}    ${boolean}    # ...    # ELSE IF
+    ...    # '${swipe}'=='right'    swipe_right    ${num}    ${boolean}
+
+if_swipe_eleTwo_click
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    ${swipe}    # ${ele1}元素1、${ele2}元素2、${num}循环次数、${boolean}是否截图、${swipe}滑动方向
+    [Documentation]    判断滑动操作，并点击里面的元素
+    run keyword if    '${swipe}'=='up'    swipe_up_statusTwo_should    ${ele_1}    ${ele_2}    ${num}    ${boolean}
+    ...    ELSE IF    '${swipe}'=='down'    swipe_down_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE IF    '${swipe}'=='left'    swipe_left_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE IF    '${swipe}'=='right'    swipe_right_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE    log    输入参数有误！    # ...

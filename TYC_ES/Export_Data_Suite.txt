@@ -1,0 +1,42 @@
+*** Settings ***
+Documentation     导出数据测试套件，附近公司导出，搜索数据导出及次数限制
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           AppiumLibrary
+Library           Custom
+Resource          run_app_resource.txt
+Resource          action_resource.txt
+Resource          login_page_resource.txt
+Resource          export_page_resource.txt
+Resource          vip_page_resource.txt
+Resource          check_resource.txt
+
+*** Test Cases ***
+vip_export_nearby_company_data
+    [Documentation]    vip导出附近公司数据
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击分类搜索入口
+    wait_click_element    ${indexPage_categorySearch_elementById}    5s    #点击首页右上角的入口
+    log    判断是否存在分类搜索title
+    wait_click_element    ${CategorySearchPage_nearbyCompany_elementById}    5s    #未登录，点击附近公司元素
+    log    跳转登录界面，需要登录才可以查看附近公司
+    vip_jump_login    # 需要登录，跳转登录窗口
+    wait_click_element    ${CategorySearchPage_nearbyCompany_elementById}    5s    #已登录，点击附近公司元素
+    wait_click_element    ${NearbyCompanyPage_exportData_elementById}    10s    #点击【导出数据】按钮
+    export_data    ${Email}    #导出数据相关操作
+
+vip_for_export_nearby_company_data
+    [Documentation]    vip验证导出附近公司数据的次数限制
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击分类搜索入口
+    wait_click_element    ${indexPage_categorySearch_elementById}    5s    #点击首页右上角的入口
+    #log    判断是否存在分类搜索title
+    wait_click_element    ${CategorySearchPage_nearbyCompany_elementById}    5s    #未登录，点击附近公司元素
+    log    跳转登录界面，需要登录才可以查看附近公司
+    vip_jump_login    # 需要登录，跳转登录窗口
+    wait_click_element    ${CategorySearchPage_nearbyCompany_elementById}    5s    #已登录，点击附近公司元素
+    for_export_data    ${Email}    ${NearbyCompanyPage_posEmail_elementById}    12    #多次导出操数据操作，未找到某元素后，就跳转不进行导出操作
+

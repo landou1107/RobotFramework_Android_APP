@@ -1,0 +1,320 @@
+*** Settings ***
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           AppiumLibrary
+Library           Custom
+Resource          appium_config_resource.txt
+Resource          android_element_resource.txt
+Resource          appium_resource.txt
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          common_resource.txt
+Resource          company_info_page_resource.txt
+
+*** Test Cases ***
+test
+    # log    ${RESOURCES}
+    # log    获取设备${UDID}的日志
+    # Get Android LogCat    ${UDID}
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    #点击联系方式展开按钮
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    #第一行是搜索关键字，从第二行开始是公司页面元素
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    ${get_text}    return_get_text    ${company_page_ele}
+    \    log    ${get_text}
+    \    Run Keyword if    '${company_page_ele}'=='${companyPage_holderName_elementById}'    for_test    ${company_page_ele}    10s
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    for_test    ${company_page_ele}    10s
+    \    ...    ELSE    Run Keywords    wait_click_element    ${company_page_ele}    10s
+    \    ...    AND    sleep    3s
+    \    ...    AND    Capture Page Screenshot    ${row}.png
+    \    ...    AND    go_back
+    \    ...    AND    sleep    3s
+
+test2
+    # log    ${RESOURCES}
+    # log    获取设备${UDID}的日志
+    # Get Android LogCat    ${UDID}
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    #点击联系方式展开按钮
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    #第一行是搜索关键字，从第二行开始是公司页面元素
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword if    '${company_page_ele}'=='${companyPage_holderName_elementById}'    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE    for_list_clikc_go_back    ${company_page_ele}    5s
+    swipe_left_input_ele    ${company_page_ele}    3
+    # : FOR    ${n}    IN RANGE    ${num}
+    # \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    # \    log    第${n}次向左滑动
+
+test3
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    #点击联系方式展开按钮
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    #第一行是搜索关键字，从第二行开始是公司页面元素
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword if    '${company_page_ele}'=='${companyPage_holderName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    ELSE    for_list_clikc_go_back    ${company_page_ele}    5s
+    # swipe_left_input_ele    ${company_page_ele}
+
+test4
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    #点击联系方式展开按钮
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    #第一行是搜索关键字，从第二行开始是公司页面元素
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword if    '${company_page_ele}'=='${companyPage_holderName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE    for_list_clikc_go_back    ${company_page_ele}    5s
+
+test5
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    #点击联系方式展开按钮
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    #第一行是搜索关键字，从第二行开始是公司页面元素
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword If    '${company_page_ele}'=='${companyPage_holderName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    swipe_up_ele    ${companyPage_riskTitle_elementByXpath}    3    True
+    \    ...    AND    log    天眼风险找到，停止上滑操作！！！！
+    \    ...    AND    Capture Page Screenshot    停止上滑操作！！！！.png
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    swipe_up_ele    ${companyPage_moduleIcon_elementByXpath}    3    True
+    \    ...    AND    log    工商信息Icon找到，停止上滑操作！！！！
+    \    ...    AND    Capture Page Screenshot    停止上滑操作！！！！.png
+    \    ...    ELSE    for_list_clikc_go_back    ${company_page_ele}    5s
+
+test6
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    #点击联系方式展开按钮
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    sleep    10s
+    test33    ${companyPage_riskText_elementByXpath}
+    # swipe_up_ele    ${companyPage_riskTitle_elementByXpath}    1    True
+    # log    天眼风险找到，停止上滑操作！！！！
+    # Capture Page Screenshot    停止上滑操作！！！！.png
+
+test7
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword If    '${company_page_ele}'=='${companyPage_holderName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    swipe_left_input_ele    ${company_page_ele}    3
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    swipe_up_ele    ${companyPage_riskTitle_elementByXpath}    3    True
+    \    ...    AND    log    天眼风险找到，停止上滑操作！！！！
+    \    ...    AND    Capture Page Screenshot    天眼风险停止上滑操作.png
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_riskTitle_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+
+test8
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword If    '${company_page_ele}'=='${companyPage_holderName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    log    ------遍历股东信息------
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    log    ------遍历董监高信息------
+    \    ...    AND    swipe_up_ele    ${companyPage_riskTitle_elementByXpath}    3    True
+    \    ...    AND    log    天眼风险找到，停止上滑操作！！！！
+    \    ...    AND    Capture Page Screenshot    天眼风险停止上滑操作.png
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_riskTitle_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    swipe_up_ele    ${companyPage_moduleIcon_elementByXpath}    3    True
+    \    ...    AND    log    工商信息Icon找到，停止上滑操作！！！！
+    \    ...    AND    Capture Page Screenshot    停止上滑操作！！！！.png
+    \    ...    AND    log    ------开始点击品牌名称------
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    log    ------开始点击产品/资质/团队------
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_moduleIcon_elementById}'    Run Keywords    log    ------开始点击产品/资质/团队------
+    \    ...    AND    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    ELSE    for_list_clikc_go_back    ${company_page_ele}    5s
+
+test9
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    # Swipe    210    1123    60    41    1000
+    # Swipe    100    610    132    42    1000
+    # Capture Page Screenshot    1.png
+    Swipe    204    261    649    59    1000
+    Capture Page Screenshot    2.png
+    Swipe    204    261    649    59    1000
+    Capture Page Screenshot    3.png
+    Swipe    204    261    649    59    1000
+    Capture Page Screenshot    4.png
+    ...    AND    Swipe    204    1550    204    650
+    ...    1000
+    ...    AND    Swipe    204    1720    204    150
+    ...    1000
+    ...    AND    log    天眼风险找到，停止上滑操作！！！！
+    ...    AND    Capture Page Screenshot    天眼风险停止上滑操作.png    # swipe_up_ele    ${companyPage_riskTitle_elementByXpath}    3
+    ...    # True
+
+test10
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    log    ${row}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    Run Keyword If    '${company_page_ele}'=='${companyPage_holderName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}    5s
+    \    ...    AND    log    ------遍历股东信息------
+    \    ...    ELSE IF    '${company_page_ele}'=='${companyPage_staffName_elementById}'    Run Keywords    for_list_clikc_go_back    ${company_page_ele}
+    \    ...    5s
+    \    ...    AND    log    点击联系方式收起按钮
+    \    ...    AND    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    \    ...    ELSE IF    '${company_page_ele}'=='com.xxxx.xxxx:id/brand_name'    Run Keyword    swipe_up
+    \    ...    ELSE    for_list_clikc_go_back    ${company_page_ele}    5s
+
+test11
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    : FOR    ${row}    IN RANGE    18    ${row_count}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    log    ${row}
+    \    Run Keyword IF    ${row}==18    swipe_click_company_ele    ${company_page_ele}    10s
+    \    ...    ELSE IF    ${row}==23    swipe_click_company_ele    ${company_page_ele}    10s
+    \    ...    ELSE    click_company_ele    ${company_page_ele}    10s
+
+test12
+    android_app_start_appium
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    : FOR    ${row}    IN RANGE    18    ${row_count}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    log    ------------读取Excel的第${row}行------------
+    \    Run Keyword IF    ${row}==18    swipe_click_company_ele    ${company_page_ele}    10s    1
+    \    ...    ELSE IF    ${row}==23    swipe_click_company_ele    ${company_page_ele}    10s
+    \    ...    1
+    \    ...    ELSE IF    ${row}==24    swipe_if_click_company_ele    ${company_page_ele}    10s
+    \    ...    enabled    0
+    \    ...    ELSE    click_company_ele    ${company_page_ele}    10s

@@ -1,0 +1,67 @@
+*** Settings ***
+Documentation     测试【中国银行股份有限公司】公司详情页面的维度
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           AppiumLibrary
+Library           Custom
+Resource          appium_config_resource.txt
+Resource          android_element_resource.txt
+Resource          appium_resource.txt
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          common_resource.txt
+Resource          company_info_page_resource.txt
+
+*** Test Cases ***
+company_info_up
+    [Documentation]    v8.4.1版本之后，删除了【产品/资质/团队】维度
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断引导遮罩是否存在
+    log    点击联系方式展开按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page
+    : FOR    ${row}    IN RANGE    2    ${row_count}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    ${row}
+    \    log    ------------读取Excel的第${row}行------------
+    \    Run Keyword IF    ${row}==18    swipe_click_company_ele    ${company_page_ele}    10s    1
+    \    ...    ELSE IF    ${row}==22    swipe_click_company_ele    ${company_page_ele}    10s
+    \    ...    1
+    \    ...    ELSE IF    ${row}==23    swipe_if_click_company_ele    ${company_page_ele}    10s
+    \    ...    enabled    0
+    \    ...    ELSE IF    ${row}==24    swipe_if_click_company_ele    ${company_page_ele}    10s
+    \    ...    enabled    1
+    \    ...    ELSE IF    ${row}==25    swipe_if_click_company_ele    ${company_page_ele}    10s
+    \    ...    enabled    1
+    \    ...    ELSE IF    ${row}==26    swipe_if_click_company_ele    ${company_page_ele}    10s
+    \    ...    enabled    1
+    \    ...    ELSE    click_company_ele    ${company_page_ele}    10s
+
+company_info_es
+    [Documentation]    公司详情中的ES维度
+    android_app_start
+    my_no_login
+    vip_login
+    wait_click_element    ${indexPage_companyTab_elementById}    10s
+    wait_click_element    ${indexPage_searchEditText_elementById}    5s
+    ${es_row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page_ES    # 获取公司名字的总行数
+    : FOR    ${es_row}    IN RANGE    1    ${es_row_count}    # 从第一行开始遍历
+    \    ${es_keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page_ES    1    ${es_row}
+    \    log    ------------读取Excel_ES的第${es_row}行------------
+    \    clear_input_text    ${search_companyInputText_elementById}    ${es_keyword_company}    # 输入公司关键字
+    \    wait_click_element    ${search_companyName_elementById}    10s    # 点击命中的公司名称进入公司详情页
+    \    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断引导遮罩是否存在
+    \    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Company_Page_ES_Info    # 获取公司详情涉及ES的case行数
+    \    log    @@@@@@@@@@
+    \    click_company_info_ele    ${row_count}    # 点击公司详情页的各个维度
+    \    go back    # 返回到搜索结果列表

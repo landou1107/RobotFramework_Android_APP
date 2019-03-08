@@ -1,0 +1,32 @@
+*** Settings ***
+Documentation     8.3.2版本后，商业头条不再使用webview，使用app的原生处理，进行上下滑动多次
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     appium_teardown
+Library           AppiumLibrary
+Resource          run_app_resource.txt
+Resource          action_resource.txt
+Resource          appium_resource.txt
+Resource          android_element_resource.txt
+
+*** Test Cases ***
+news_swipe
+    [Documentation]    1.登录
+    ...    2.搜索公司先向上滑动，再向下滑
+    [Tags]    smoke
+    android_app_start
+    swipe_up_ele    ${indexPage_newTitle_elementById}    80    True
+    swipe_down_ele    ${indexPage_newTitle_elementById}    100    True
+    # swipe_up_ele    ${indexPage_newWebSwipe_elementByXpath}    3    True
+    # swipe_down    ${search_companySwipesearchTitle_elementByXpath}    100    True
+    # @{contexts}    Get Contexts    #获取contexts
+    # Log Many    @{contexts}    #打印contexts
+    # ${cur_context}    Get Current Context    #获取当前contexts
+    # log    当前context
+    # log    ${cur_context}    #打印当前contexts
+    # log    开始切换
+    # Switch To Context    WEBVIEW_com.xxxx.xxx    #切换contexts
+    # log    切换成功
+    # ${cur_context}    Get Current Context
+    # log    ${cur_context}
+    [Teardown]    Close All Applications

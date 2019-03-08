@@ -1,0 +1,28 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          action_resource.txt    # 行为操作资源
+Resource          android_element_resource.txt    # Android相关元素资源
+Resource          check_resource.txt    # 校验文本信息
+
+*** Keywords ***
+my_no_login
+    [Documentation]    点击【我的】，进入我的页面，再点击登录按钮
+    ...    v9.1.1更新登录界面元素
+    wait_click_element    ${indexPage_myTab_elementById}    20s    # 点击首页我的
+    #get_pageShouldContain_text    ${myPage_jumpLoginBtn_elementById}    ${check_no_login_text}
+    ${get_no_login_text}    get text    com.xxxx.skyeye:id/tv_user_reg    # ${myPage_jumpLoginBtn_elementById}
+    get_pageshouldcontain_element    com.xxxx.skyeye:id/tv_user_reg    # ${myPage_jumpLoginBtn_elementById}
+    wait_click_element    com.xxxx.skyeye:id/tv_user_reg    20s    # 点击我的页面立即登录    # ${myPage_jumpLoginBtn_elementById}
+
+my_logout
+    swipe_up_ele    ${myPage_settingText_elementByXpath}    4    True
+    wait_click_element    ${myPage_setting_elementById}    10s
+
+my_update
+    swipe_up_ele    ${myPage_settingText_elementByXpath}    4    True
+    wait_click_element    ${myPage_updateBtn_elementByXpath}    10s
+    # wait_click_element    ${myPage_updateOkBtn_elementByXpath}    10s
+    ${result}    return_keyword_status    ${indexPage_updateBtn_elementById}
+    run keyword if    '${result}'=='False'    log    当前是最新版本
+    ...    ELSE    run keywords    click_element    ${indexPage_updateBtn_elementById}
+    ...    AND    log    升级包下载ing

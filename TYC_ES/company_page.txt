@@ -1,0 +1,9 @@
+*** Settings ***
+Documentation     公司详情页
+Resource          android_element_resource.txt
+Library           AppiumLibrary
+
+*** Keywords ***
+get_company_detail
+    [Documentation]    公司详情信息
+    get_text    ${companyPage_companyDetail_elementById}

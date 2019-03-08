@@ -1,0 +1,72 @@
+*** Settings ***
+Documentation     公司详情页
+Library           AppiumLibrary
+Library           Custom
+Resource          appium_config_resource.txt
+Resource          android_element_resource.txt
+Resource          appium_resource.txt
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          common_resource.txt
+
+*** Keywords ***
+get_company_detail
+    [Documentation]    公司详情信息
+    get_text    ${companyPage_companyDetail_elementById}
+
+get_company_text
+    [Arguments]    ${ele}    # ${actual_ele}实际元素、${expected_ele}期望元素
+    [Documentation]    通过元素获取文本
+    return_get_text    ${ele}
+
+open_close_company_contactInfo
+    [Documentation]    关闭展开联系方式信息按钮
+    log    点击联系方式按钮
+    wait_click_element    ${companyPage_contactInfo_elementById}    10s
+
+if_click_company_ele
+    [Arguments]    ${actual_ele}    ${expected_ele}    ${wait_time}    # ${actual_ele}实际元素、${expected_ele}期望元素
+    [Documentation]    点击公司详情页面遍历信息
+    Run Keyword if    '${actual_ele}'=='${expected_ele}'    for_list_click_go_back    ${actual_ele}    ${wait_time}
+
+click_company_ele
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}实际元素、${wait_time}等待时间
+    [Documentation]    点击公司详情页某些信息
+    for_list_click_go_back    ${ele}    ${wait_time}
+
+swipe_click_company_ele
+    [Arguments]    ${actual_ele}    ${wait_time}    ${num}    # ${actual_ele}实际元素、${wait_time}等待时间、${num}滑动次数
+    [Documentation]    滑动后，点击公司详情页某些信息
+    swipe_up_num    ${num}
+    log    向上滑动完成
+    for_list_click_go_back    ${actual_ele}    ${wait_time}
+
+swipe_if_click_company_ele
+    [Arguments]    ${actual_ele}    ${wait_time}    ${name}    ${num}    # ${actual_ele}实际元素、${wait_time}等待时间、${name}属性名称、${num}滑动次数
+    [Documentation]    滑动后，点击公司详情页某些信息，判断属性是否可点击文本
+    swipe_up_num    ${num}
+    Run Keyword IF    ${num}>0    log    ----------向上滑动完成----------
+    ...    ELSE    log    ----------未进行向上滑动----------
+    if_for_list_click_go_back    ${actual_ele}    ${wait_time}    ${name}
+
+swipe_should_click_company_ele
+    [Arguments]    ${actual_ele}    ${wait_time}    ${name}    ${num}    ${swipe_text}    # ${actual_ele}实际元素、${wait_time}等待时间、${name}属性名称、${num}滑动次数
+    [Documentation]    滑动后，是否定位到维度元素，再点击公司详情页某些信息，判断属性是否可点击文本
+    swipe_up_xy_ele    ${num}    //android.widget.TextView[@text="${swipe_text}"]
+    ${status}    return_keyword_status    //android.widget.TextView[@text="${swipe_text}"]
+    Run Keyword IF    '${status}'=='False'    swipe_down_xy_ele    ${num}    //android.widget.TextView[@text="${swipe_text}"]
+    if_for_list_click_go_back    ${actual_ele}    ${wait_time}    ${name}
+
+click_company_info_ele
+    [Arguments]    ${row_count}    # ${row_count}获取Excel的行数
+    [Documentation]    点击公司详情页相关维度
+    log    %%%%%%%%%%%%
+    : FOR    ${row}    IN RANGE    1    ${row_count}
+    \    ${company_page_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page_ES_Info    1    ${row}
+    \    log    ------------@读取Excel的第${row}行------------
+    \    swipe_should_click_company_ele    ${company_page_ele}    5s    enabled    6    股权出质
+    \    swipe_should_click_company_ele    ${company_page_ele}    5s    enabled    6    资质证书
+    \    swipe_should_click_company_ele    ${company_page_ele}    5s    enabled    6    问大家

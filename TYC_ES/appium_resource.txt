@@ -1,0 +1,18 @@
+*** Settings ***
+Documentation     appium初始化
+Library           Custom/ParalleAppiumLib.py    # Library | ../src/ParalleAppiumLib.py
+
+*** Keywords ***
+appium_setup
+    [Documentation]    startServers 默认是False代表不添加appium的desired_caps参数，True代表添加appium的desired_caps参数
+    setServerCount    1
+    addInstance    ${UDID}    ${APP}    ${PORT}    ${BOOTSTRAP_PORT}    ${PLATFORM_NAME}    ${PLATFORM_VERSION}
+    ...    ${APP_PACKAGE}    ${APP_ACTIVITY}
+    startServers
+    log    开启appium服务
+
+appium_teardown
+    # stopAppiumServers
+    killPidServer    ${PORT}
+    # killNameServer
+    log    关闭appium服务

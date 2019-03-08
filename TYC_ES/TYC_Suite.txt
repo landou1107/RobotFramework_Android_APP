@@ -1,0 +1,37 @@
+*** Settings ***
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           AppiumLibrary
+Resource          appium_resource.txt
+Resource          appium_config_resource.txt    # android相关配置
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          text_resource.txt    # 登录页相关操作
+Resource          android_element_resource.txt    # android相关元素资源
+Resource          setting_page_resource.txt    # 设置页相关操作
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+
+*** Test Cases ***
+run_android_app
+    android_app_start
+
+login
+    # run_appium_app    启动主界面截图.png
+    android_app_start
+    my_no_login
+    vip_login
+
+login_out
+    android_app_start
+    my_no_login
+    vip_login
+    my_logout
+    setting_logout
+
+update
+    android_app_start
+    wait_click_element    ${indexPage_myTab_elementById}    10s
+    my_update

@@ -1,0 +1,18 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          android_element_resource.txt    # Android相关元素资源
+Resource          check_resource.txt    # 校验文本信息
+Resource          action_resource.txt    # 行为操作资源
+
+*** Keywords ***
+setting_logout
+    ${get_logoutBtn_text}    get text    ${settingPage_logoutBtn_elementById}
+    log    ${get_logoutBtn_text}
+    page should contain text    ${get_logoutBtn_text}    ${check_logoutBtn_text}
+    click_element    ${settingPage_logoutBtn_elementById}
+    click_element    ${settingPage_logoutCancel_elementById}
+    page should contain text    ${get_logoutBtn_text}    ${check_logoutBtn_text}
+    click_element    ${settingPage_logoutBtn_elementById}
+    click_element    ${settingPage_logoutOK_elementById}
+    sleep    3s
+    swipe_down_ele    ${myPage_loginId_elementByXpath}    4    True

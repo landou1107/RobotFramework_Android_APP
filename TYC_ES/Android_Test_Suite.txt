@@ -1,0 +1,27 @@
+*** Settings ***
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           Custom    # ../site-packages/Custom/
+Resource          appium_resource.txt
+Library           AppiumLibrary
+Resource          run_app_resource.txt
+
+*** Test Cases ***
+test_if_uninstall
+    # Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    udid=${UDID}    app=${APP}
+    # ...    automationName=${AUTOMATION_NAME}    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    unicodeKeyboard=${UNICODE_KEYBOARD}    resetKeyboard=${RESET_KEYBOARD}
+    # uninstall_install_app
+    android_app_start    # log    开启appium服务    # appium_setup    # Open Application    ${REMOTE_URL}    # platformName=${PLATFORM_NAME}
+    ...    # platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    udid=${UDID}    app=${APP}    # automationName=${AUTOMATION_NAME}    # appPackage=${APP_PACKAGE}
+    ...    # appActivity=${APP_ACTIVITY}    unicodeKeyboard=${UNICODE_KEYBOARD}    resetKeyboard=${RESET_KEYBOARD}
+    # log    开启appium服务
+    # appium_setup
+    log    关闭app
+    Close All Applications
+    # log    关闭appium服务
+    # appium_teardown
+    # Set Environment Variable
+
+run_appium_app
+    run_appium_app    启动主界面截图.png

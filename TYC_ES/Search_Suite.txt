@@ -1,0 +1,153 @@
+*** Settings ***
+Documentation     公司和人搜索相关操作
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           AppiumLibrary
+Library           Custom
+Resource          action_resource.txt
+Resource          appium_resource.txt
+Resource          common_resource.txt
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          text_resource.txt    # 登录页相关操作
+Resource          android_element_resource.txt    # android相关元素资源
+Resource          setting_page_resource.txt    # 设置页相关操作
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+Resource          search_relation_page_resource.txt
+Resource          network_resource.txt    # Library    ../src/ParalleAppiumLib.py
+
+*** Test Cases ***
+search_company_order_nologin
+    [Documentation]    查公司后，进行排序
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_company    ${keyword_company}    # 输入搜索公司名称
+    search_order_company    ${search_companyName_elementById}    ${keyword_company}    # 进行公司名称列表不同排序
+
+search_company_click_swipe_nologin
+    [Documentation]    查公司上下滑动进入公司详情
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_company    ${keyword_company}
+    search_swipe_click_company_title    ${search_companyName_elementById}    ${companyPage_companyDetailName_elementById}    10    True    up
+    search_swipe_click_company_title    ${search_companyName_elementById}    ${companyPage_companyDetailName_elementById}    10    True    down
+
+vip_search_human_click_swipe_login
+    [Documentation]    查老板上下滑动进入人详情
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    my_no_login
+    vip_login    #vip用户登录操作
+    click_element    ${indexPage_companyTab_elementById}
+    search_human
+    search_swipe_click_human_title    ${search_humanName_elementById}    ${humanPage_nameText_elementById}    2    True    up
+    search_swipe_click_human_title    ${search_humanName_elementById}    ${humanPage_nameText_elementById}    2    True    down
+
+search_company_swipe_nologin
+    [Documentation]    1.登录
+    ...    2.搜索公司先向上滑动，再向下滑
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_company    ${keyword_company}
+    swipe_up_ele    ${search_companySwipeOpenVip_elementByXpath}    30    True
+    swipe_down_ele    ${search_companySwipesearchTitle_elementByXpath}    30    True
+
+vip_search_company_swipe_login
+    [Documentation]    1.不登录
+    ...    2.搜索公司先向上滑动，再向下滑
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    # my_no_login
+    # login
+    # click_element    ${indexPage_companyTab_elementById}
+    login_after_click_ele    ${indexPage_companyTab_elementById}    # 需要登录后，点击元素跳转指定页面
+    search_company    ${keyword_company}
+    swipe_up_ele    ${search_companySwipeOpenVip_elementByXpath}    15    True
+    swipe_down_ele    ${search_companySwipesearchTitle_elementByXpath}    15    True
+
+vip_search_company_result
+    [Documentation]    查公司品牌、私募、机构结果及相关操作
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    my_no_login
+    vip_login    #vip用户登录操作
+    click_element    ${indexPage_companyTab_elementById}
+    search_company    ${keyword_brand}    # 搜索公司品牌、私募、机构关键字
+    search_company_human
+    search_click_company_title
+    search_click_company
+    search_click_company_human
+
+vip_search_human_result
+    [Documentation]    查老板结果
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    my_no_login
+    vip_login    #vip用户登录操作
+    click_element    ${indexPage_companyTab_elementById}
+    search_human
+
+vip_search_example_relation_more
+    [Documentation]    查关系样例相关操作，并涉及登录操作
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_example_relation    # 查看关系样例，v8.1.1查看样例不需要登录
+    search_relation_Screen    # 查关系，操作-全屏和退出全屏操作
+    search_relation_moreScan    # 查关系，操作-扫一扫操作
+    search_relation_moreShare    # 查关系，操作-分享
+    search_relation_moreSave    # 查关系，操作-保存
+    login_after_click_ele    ${indexPage_relationTab_elementById}    # 需要登录后，点击元素跳转指定页面
+    search_relation_list    # 遍历查关系样例中所有公司和人，人需要登录操作
+    search_delRelationPoint_cancel    # 查关系，使用for循环递减，删除关系点，取消操作
+    search_delRelationPoint_save    # 使用for循环递减，删除关系点，保存操作
+
+search_example_relation_clearAll
+    [Documentation]    查关系样例清空操作
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_example_relation
+    search_relationClearAll
+
+search_input_relation
+    [Documentation]    查关系输入信息操作
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    # my_no_login
+    # login
+    search_input_relation    # 输入查关系的信息和相关操作
+    log    点击【查关系】按钮，跳转登录
+    vip_jump_login    # vip登录
+    sleep    10s
+    Capture Page Screenshot
+    search_relationFor_list    ${relationPage_relationPoint_elementById}    20s    # 遍历查关系样例中所有公司和人，人需要登录操作，拖拽每个关系点到某个位置
+
+vip_search_keywords_result
+    [Documentation]    主搜索case，获取查公司结果
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    my_no_login
+    vip_login    #vip用户登录操作
+    ${row_count}=    retrun_excel_rows_num    ${keywords_excel_path}    Search_Keywords
+    : FOR    ${row}    IN RANGE    1    ${row_count}
+    \    click_element    ${indexPage_companyTab_elementById}
+    \    log    ${row}
+    \    ${keywords}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Search_Keywords    1    ${row}
+    \    search_company    ${keywords}
+    \    click_ele_network    ${no_networkPage_elementById}
+    \    sleep    5s
+    \    ${get_ele}=    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Search_Keywords    2    ${row}
+    \    ${get_text}=    return_get_text    ${get_ele}
+    \    get_pageShouldContain_text    ${get_ele}    ${keyword_company}
+    \    sleep    5s
+    \    go_back
+
+vip_search_example_relation_press_scroll
+    [Documentation]    查关系样例相关操作，并涉及登录，拖拽每个点操作
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_example_relation    # 查看关系样例，v8.1.1查看样例不需要登录
+    login_after_click_ele    ${indexPage_relationTab_elementById}    # 需要登录后，点击元素跳转指定页面
+    search_relation_list    # 遍历查关系样例中所有公司和人，人需要登录操作，拖拽每个关系点到某个位置

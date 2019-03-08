@@ -1,0 +1,57 @@
+*** Settings ***
+Documentation     涉及所有登录操作
+Library           AppiumLibrary
+Resource          android_element_resource.txt    # Android相关元素资源
+Resource          text_resource.txt    # 文本资源
+Resource          action_resource.txt    # 行为操作资源
+Resource          my_page_resource.txt
+
+*** Keywords ***
+vip_login
+    [Documentation]    vip账号进行登录
+    wait_click_element    ${loginPage_ptLoginTextView_elementByXpath}    10s
+    Input Text    ${loginPage_userEditText_elementById}    ${vip_login_moblie}
+    wait_click_element    ${loginPage_pwdEditText_elementById}    10s
+    Input password    ${loginPage_pwdEditText_elementById}    ${login_pwd}
+    wait_click_element    ${loginPage_LoginButton_elementById}    10s
+    #sleep    5s
+    get_elementShouldEnabled    ${myPage_nickNameText_elementById}
+    # ${nick_name}    get text    ${myPage_nickNameText_elementById}
+    # log    ${nick_name}
+    # element should be enabled    ${myPage_nickNameText_elementById}
+
+vip_jump_login
+    [Documentation]    涉及登录后，才可以使用，vip账号进行登录
+    wait_click_element    ${loginPage_ptLoginTextView_elementByXpath}    5s
+    Input Text    ${loginPage_userEditText_elementById}    ${vip_login_moblie}
+    wait_click_element    ${loginPage_pwdEditText_elementById}    5s
+    Input password    ${loginPage_pwdEditText_elementById}    ${login_pwd}
+    wait_click_element    ${loginPage_LoginButton_elementById}    5s
+
+novip_login
+    [Documentation]    非vip账号进行登录
+    wait_click_element    ${loginPage_ptLoginTextView_elementByXpath}    5s
+    Input Text    ${loginPage_userEditText_elementById}    ${novip_login_moblie}
+    wait_click_element    ${loginPage_pwdEditText_elementById}    5s
+    Input password    ${loginPage_pwdEditText_elementById}    ${login_pwd}
+    wait_click_element    ${loginPage_LoginButton_elementById}    5s
+    sleep    5s
+    get_elementShouldEnabled    ${myPage_nickNameText_elementById}
+    # ${nick_name}    get text    ${myPage_nickNameText_elementById}
+    # log    ${nick_name}
+    # element should be enabled    ${myPage_nickNameText_elementById}
+
+novip_jump_login
+    [Documentation]    涉及登录后，才可以使用，非vip账号进行登录
+    wait_click_element    ${loginPage_ptLoginTextView_elementByXpath}    5s
+    Input Text    ${loginPage_userEditText_elementById}    ${novip_login_moblie}
+    wait_click_element    ${loginPage_pwdEditText_elementById}    5s
+    Input password    ${loginPage_pwdEditText_elementById}    ${login_pwd}
+    wait_click_element    ${loginPage_LoginButton_elementById}    5s
+
+login_after_click_ele
+    [Arguments]    ${ele}    # 输入需要切换的ele
+    [Documentation]    需要登录操作，登录成功后，点击元素切换到某页面
+    my_no_login    # 进入未登录页面
+    vip_login    # 登录操作
+    click_element    ${ele}    # 点击需要操作的元素

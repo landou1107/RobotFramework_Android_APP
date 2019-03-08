@@ -1,0 +1,34 @@
+*** Settings ***
+Documentation     导出数据页相关操作（搜索结果和附近公司）
+Library           AppiumLibrary
+Resource          android_element_resource.txt
+Resource          action_resource.txt
+Resource          text_resource.txt
+
+*** Keywords ***
+export_data
+    [Arguments]    ${Email}    # ${Email}接收数据邮件地址
+    [Documentation]    导出操数据操作
+    # wait_click_element    ${NearbyCompanyPage_exportData_elementById}    10s    #点击【导出数据】按钮
+    ${result}    return_keyword_status    ${nearbyCompanyPage_cancelEmail_elementById}
+    run keyword if    '${result}'=='False'    log    @@@@-【元素】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    ****-【元素】已找到，需要操作-****
+    ...    AND    Clear Text    ${nearbyCompanyPage_addEmail_elementById}    #清空编辑框内的邮箱地址
+    ...    AND    wait_click_element    ${nearbyCompanyPage_cancelEmail_elementById}    10s    #点击邮件编辑【取消】按钮
+    ...    AND    wait_click_element    ${nearbyCompanyPage_exportData_elementById}    10s    #点击【导出数据】按钮
+    ...    AND    Input Text    ${nearbyCompanyPage_addEmail_elementById}    ${Email}    #编辑框内输入邮箱地址
+    ...    AND    wait_click_element    ${nearbyCompanyPage_posEmail_elementById}    10s    #点击【发送】按钮
+    ...    AND    sleep    2s
+    ...    AND    Capture Page Screenshot
+    ...    AND    log    发送完成！@@@@
+
+for_export_data
+    [Arguments]    ${Email}    ${ele}    ${num}    # ${Email}接收数据邮件地址、${xpath_ele}需要判断的元素、${num}循环次数
+    [Documentation]    多次导出操数据操作，未找到某元素后，就跳转不进行导出操作
+    # wait_click_element    ${NearbyCompanyPage_exportData_elementById}    10s    #点击【导出数据】按钮
+    : FOR    ${index}    IN RANGE    ${num}
+    \    wait_click_element    ${nearbyCompanyPage_exportData_elementById}    10s    #点击【导出数据】按钮
+    \    ${result}    return_keyword_status    ${ele}    #返回元素是否存在
+    \    Exit For Loop If    '${result}'=='False'    #元素不存在，退出当前循环存在的话就继续操作
+    \    export_data    ${Email}    #导出操作
+    \    log    第${index}+1次

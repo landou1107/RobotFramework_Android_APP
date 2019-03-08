@@ -1,0 +1,76 @@
+*** Settings ***
+Library           AppiumLibrary
+Library           Custom
+Resource          action_resource.txt
+Resource          appium_resource.txt
+Resource          run_app_resource.txt
+Resource          common_resource.txt
+Resource          appium_config_resource.txt    # android相关配置
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          text_resource.txt    # 登录页相关操作
+Resource          android_element_resource.txt    # android相关元素资源
+Resource          setting_page_resource.txt    # 设置页相关操作
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+Resource          search_relation_page_resource.txt    # Library    ../site-packages/Custom/÷
+
+*** Test Cases ***
+read_ExcelLibrary_1
+    [Documentation]    1.使用ExcelLibrary的关键函数，获取整列信息
+    ...    2.https://blog.csdn.net/allan_shore_ma/article/details/68491288
+    Open Excel    ${keywords_excel_path}
+    @{read_columnA}    Get_Column_Values    Sheet1    0    #0代表Excel的第一列，读完@{read_columnA}是一个list
+    @{read_columnB}    Get_Column_Values    Sheet1    1    #1代表Excel的第二列，读完@{read_columnB}是一个list
+
+read_data_from_excel_list
+    [Documentation]    1.robot framework读取Excel文件，并保存为list；
+    ...    2.https://blog.csdn.net/cuipan1234/article/details/62438608
+    Open Excel    ${keywords_excel_path}
+    @{read_columnA}    Get_Column_Values    Sheet1    0    #0代表Excel的第一列，读完@{read_columnA}是一个list
+    @{read_columnB}    Get_Column_Values    Sheet1    1    #1代表Excel的第二列，读完@{read_columnB}是一个list
+    ${y}    set_Variable    1    #设置变量，读取文件后，list示例[A2,u'hedi']
+    ${count_row}    get_row_count    Sheet1    #get_row_count    获取文本行数
+    ${count_column}    get_column_count    Sheet1    #get_column_count    获取文本列数
+    Set_Suite_Variable    ${count_row}
+    #log    ${count_row}
+    @{a_list}    create_list
+    @{b_list}    create_list
+    : FOR    ${x}    IN RANGE    ${count_row}
+    \    ${a}    set_variable    ${read_columnA[${x}][${y}]}
+    \    ${b}    set_variable    ${read_columnB[${x}][${y}]}
+    \    Append_to_list    ${a_list}    ${a}    #Append_to_list需要Collections包支持
+    \    Append_to_list    ${b_list}    ${b}
+    Set_Suite_Variable    ${a_list}
+    Set_Suite_Variable    ${b_list}
+    # log    ${a_list}
+    # log    ${b_list}
+
+retrun_excel_list_row_valve
+    [Documentation]    通过行号获取整行的信息
+    retrun_excel_list_row_valve    ${keywords_excel_path}    Sheet1    1
+
+retrun_excel_list_col_valve
+    [Documentation]    通过列号获取整列的信息
+    retrun_excel_list_col_valve    ${keywords_excel_path}    Sheet1    1
+
+retrun_excel_rows_num
+    [Documentation]    获取Excel的总行数
+    retrun_excel_rows_num    ${keywords_excel_path}    Sheet1
+
+retrun_read_cell_data_by_coordinates_list
+    [Documentation]    通过行号和列号，获取指定值
+    ${row_num}=    retrun_excel_rows_num    ${keywords_excel_path}    Sheet1
+    # log    ${row_num}
+    retrun_read_cell_data_by_coordinates_list    ${row_num}    Sheet1    1
+
+retrun_read_cell_data_by_name_list
+    [Documentation]    通过行号和列名，获取指定值
+    ${row_num}=    retrun_excel_rows_num    ${keywords_excel_path}    Sheet1
+    log    ${row_num}
+    retrun_read_cell_data_by_name_list    ${row_num}    Sheet1    B
+
+retrun_open_excel_read_cell_data_by_coordinates_list
+    [Documentation]    通过路径、行号和列名，获取指定值
+    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Sheet1    1    3

@@ -1,0 +1,61 @@
+*** Settings ***
+Documentation     项目品牌相关操作
+...               执行失败时不自动截屏 run_on_failure=AppiumLibrary.Capture Page Screenshot
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Library           AppiumLibrary
+Resource          appium_resource.txt
+Resource          appium_config_resource.txt    # android相关配置
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          my_page_resource.txt    # 我的页面相关操作
+Resource          login_page_resource.txt    # 登录页相关操作
+Resource          text_resource.txt    # 登录页相关操作
+Resource          android_element_resource.txt    # android相关元素资源
+Resource          setting_page_resource.txt    # 设置页相关操作
+Resource          run_app_resource.txt    # 启动app
+Resource          action_resource.txt    # 行为操作资源
+Resource          search_relation_page_resource.txt
+Resource          new_project_page_resource.txt    # 项目品牌相关资源
+
+*** Test Cases ***
+search_company_projectTag
+    [Documentation]    查公司结果-品牌项目遍历标签并进入
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_company    ${keyword_project_name}
+    project_tag_click
+    project_tag_list
+
+company_project_swipe_nologin
+    [Documentation]    1.未登录
+    ...    2.查公司结果-项目品牌详情上下滑动
+    ...    3.点击人名信息
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_company    ${keyword_project_name}
+    # sleep    5s
+    project_tag_click
+    project_detail_swipe
+
+search_company_projectTags_swipe
+    [Documentation]    查公司结果-项目品牌、投资机构左右滑动
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    search_company    ${keyword_project_name}
+    sleep    5s
+    project_tags_click_list
+
+company_project_swipe_login
+    [Documentation]    1.已登录
+    ...    2.查公司结果-项目品牌详情上下滑动
+    ...    3.点击人名信息
+    [Tags]    smoke    # 冒烟主流程
+    android_app_start
+    my_no_login
+    vip_login
+    click_element    ${indexPage_companyTab_elementById}
+    search_company    ${keyword_project_name}
+    #sleep    5s
+    project_tag_click
+    project_detail_swipe

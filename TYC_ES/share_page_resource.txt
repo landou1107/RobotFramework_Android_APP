@@ -1,0 +1,81 @@
+*** Settings ***
+Documentation     分享相关的操作
+Library           AppiumLibrary
+Resource          android_element_resource.txt
+Resource          action_resource.txt
+Resource          pay_resource.txt
+Resource          text_resource.txt
+Resource          check_resource.txt
+
+*** Keywords ***
+share_tyc_to_wechat
+    [Arguments]    ${ele}    ${expected}    ${share_message}    # ${ele}页面title的元素、页面预期title、${expected}${share_message}分享内容
+    [Documentation]    点击【如何获取】入口，进行关闭，保存本地，分享到微信好友操作
+    click_new_page_should    ${getFriendVipPage_knowCode_elementById}    点击【如何获取】入口    ${getFriendVipPage_codeTitle_elementById}    ${check_wechatSharePage}    # 点击【如何获取】，弹窗分享窗口
+    log    进行关闭操作
+    wait_click_element    ${getFriendVipPage_closeWindow_elementById}    10s    #点击关闭操作
+    click_new_page_should    ${getFriendVipPage_knowCode_elementById}    点击【如何获取】入口    ${getFriendVipPage_codeTitle_elementById}    ${check_wechatSharePage}
+    log    点击【保存到本地】
+    wait_click_element    ${getFriendVipPage_codeSave_elementByXpath}    10s    # 点击保存到本地操作
+    click_new_page_should    ${getFriendVipPage_knowCode_elementById}    点击【如何获取】入口    ${getFriendVipPage_codeTitle_elementById}    ${check_wechatSharePage}
+    log    点击【分享到微信】
+    wait_click_element    ${getFriendVipPage_codeShare_elementByXpath}    10s    # 点击分享到微信，跳转到微信
+    if_weixin_logined    ${wechatLoginPage_title_elementByXpath}    # 判断是否登录微信
+    share_wechat_back_tyc    ${ele}    ${expected}    ${share_message}    # 分享微信好友后，返回xxxx
+    # share_wechat_back_tyc    ${getFriendVipPage_title_elementById}    ${check_becomeVipPage_title}    ${share_message}    # 分享微信好友后，返回xxxx
+
+share_wechat_back_tyc
+    [Arguments]    ${ele}    ${expected}    ${share_message}    # ${ele}获取元素、${expected}预期值、${share_message}分享消息
+    [Documentation]    1.点击获取邀请码；
+    ...    2.点击保存按钮；
+    ...    3.点击分享按钮；
+    ...    4.点击返回xxxx按钮及验证返回窗口title。
+    # log    点击【分享到微信】
+    # wait_click_element    ${getFriendVipPage_codeShare_elementByXpath}    10s    # 点击分享到微信，跳转到微信
+    if_weixin_nofriend_share    咣咣地跟屁虫    # 判断是否存在微信好友分享记录
+    log    点击【进入微信，选择好友名称后分享操作】:
+    wait_click_element    ${wechatSharePage_shareFriend_elementByXpath}    20s    # 进入微信分享给好友
+    log    点击【输入分享信息】
+    wait_element    ${wechatSharePage_shareInput_elementByXpath}    20s    # 等待元素的出现
+    input_text    ${wechatSharePage_shareInput_elementByXpath}    ${share_message}    # 输入分享信息
+    log    点击分享好友【发送/分享按钮】
+    wait_click_element    ${wechatSharePage_share_elementByXpath}    20s    # 点击发送按钮
+    log    验证分享好友发送后展示
+    get_elementTextShould_text    ${wechatSharePage_backTYC_elementByXpath}    ${check_shareWeChat}    #验证分享后展示
+    log    点击返回xxxx按钮
+    wait_click_element    ${wechatSharePage_backTYC_elementByXpath}    20s    # 返回xxxx按钮
+    get_elementTextShould_text    ${ele}    ${expected}    #获取title是否与预期一致
+
+share_wechat_pengyouquan_back_tyc
+    [Arguments]    ${ele}    ${expected}    ${share_message}    # ${ele}获取元素、${expected}预期值、${share_message}分享消息
+    [Documentation]    1.当前页面的判断是否在朋友圈内，并进行相关分享操作；
+    get_elementTextShould_text    ${wechatSharePage_pyqSend_elementByXpath}    发送    # 获取title是否与预期一致
+    clear_input_text    ${wechatSharePage_pyqEditText_elementByXpath}    ${share_message}    # 微信内分享朋友圈编辑分享信息
+    wait_click_element    ${wechatSharePage_pyqSend_elementByXpath}    40s    # 微信内分享朋友圈发表按钮
+    log    分享成功后，自动返回xxxx
+    get_elementTextShould_text    ${ele}    ${expected}    #获取title是否与预期一致
+
+if_weixin_logined
+    [Arguments]    ${ele}    # ${ele}获取判断登录的元素
+    [Documentation]    判断当前是否已登录微信；
+    ${status}=    return_keyword_status    ${ele}
+    run keyword if    '${status}'=='False'    log    @@@@-微信已登录-@@@@    # 如果为假已经登录
+    ...    ELSE IF    '${status}'=='True'    weixin_login    ${wechat_user}    ${wechat_password}    # 如果为真进行登录操作
+
+if_weixin_nofriend_share
+    [Arguments]    ${friend_name}    # ${friend_name}好友名字【咣咣地跟屁虫】
+    [Documentation]    判断当前微信是否存在分享好友记录；
+    ${status}=    return_keyword_status    ${wechatSharePage_shareFriend_elementByXpath}    # 判断是否存在微信好友分享记录
+    run keyword if    '${status}'=='True'    log    存在好友分享记录    # 如果为假已经登录
+    ...    ELSE    run keywords    clear_input_text    ${wechatLoginPage_shareFriendText_elementByXpath}    ${friend_name}    # 搜索好友名字
+    ...    AND    wait_click_element    ${wechatSharePage_shareFriend_elementByXpath}    40s    # 点击匹配的好友名字
+
+weixin_login
+    [Arguments]    ${wechat_user}    ${wechat_password}    # ${weixin_user}微信用户名、${weixin_password}微信密码
+    [Documentation]    微信登录操作，输入用户名和密码，点击登录按钮；
+    log    微信登录操作
+    ${wechat_user_ele}=    get_index_elements    ${wechatLoginPage_input_elementByXpath}    0    20s    # 输入微信账号
+    ${wechat_password_ele}=    get_index_elements    ${wechatLoginPage_input_elementByXpath}    1    20s    # 输入微信密码
+    clear_input_text    ${wechat_user_ele}    ${wechat_user}    # 输入微信账号
+    input_password    ${wechat_password_ele}    ${wechat_password}    # 输入微信密码
+    wait_click_element    ${wechatLoginPage_login_elementByXpath}    20s    # 微信内点击登录按钮

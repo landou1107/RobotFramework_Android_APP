@@ -1,0 +1,861 @@
+*** Settings ***
+Library           AppiumLibrary
+Library           AutoItLibrary
+Library           os
+
+*** Keywords ***
+失败后继续运行
+    [Arguments]    ${keyword}    @{args}
+    Run Keyword And Continue On Failure    ${keyword}    @{args}
+
+日志
+    [Arguments]    @{msg}
+    log    @{msg}
+
+注释
+    comment
+
+调用方法
+    [Arguments]    ${object}    ${method_name}    @{args}
+    ${res}    Call Method    ${object}    ${method_name}    @{args}
+    [Return]    ${res}
+
+连接
+    [Arguments]    ${sep}    @{args}
+    [Documentation]    可以使用 SEPARATOR= 指定连接字符，例如：
+    ...    连接 SEPARATOR=*** \ \ aaa \ bbb \ ccc
+    ...    --------------------------------------------------
+    ...    输出结果：aaa***bbb***ccc
+    ${res}    Catenate    ${sep}    @{args}
+    [Return]    ${res}
+
+继续for循环
+    Continue For Loop
+
+条件成立继续for循环
+    [Arguments]    ${arg}
+    Continue For Loop If    ${arg}
+
+转成二进制
+    [Arguments]    ${item}    ${base}=    ${prefix}=    ${length}=
+    ${res}    Convert To Binary    ${item}    ${base}    ${prefix}    ${length}
+    [Return]    ${res}
+
+转成bool
+    [Arguments]    ${item}
+    ${res}    Convert To Boolean    ${item}
+    [Return]    ${res}
+
+转成hex
+    [Arguments]    ${item}    ${base}=    ${prefix}=    ${length}=    ${lowercase}=False
+    ${res}    Convert To Hex    ${item}    ${base}    ${prefix}    ${length}    ${lowercase}
+    [Return]    ${res}
+
+转成int
+    [Arguments]    ${item}    ${base}=
+    ${res}    Convert To Integer    ${item}    ${base}
+    [Return]    ${res}
+
+转成Number
+    [Arguments]    ${item}    ${precision}=
+    [Documentation]    precison 参数是保留位数，默认全部保存。
+    ...    Convert To Number 13.14 \ #结果：13.14
+    ...    Convert To Number 13.14 1 #结果：13.1
+    ...    Convert To Number 13.14 0 #结果：13.0
+    ...    Convert To Number 13.14 -1 #结果：10.0
+    ${res}    Convert To Number    ${item}    ${precision}
+    [Return]    ${res}
+
+转成Octal
+    [Arguments]    ${item}    ${base}=    ${prefix}=    ${length}=
+    ${res}    Convert To Octal    ${item}    ${base}    ${prefix}    ${length}
+    [Return]    ${res}
+
+转成String
+    [Arguments]    ${item}
+    ${res}    Convert To String    ${item}
+    [Return]    ${res}
+
+创建List
+    [Arguments]    @{items}
+    @{list}    Create List    @{items}
+    [Return]    @{list}
+
+求值
+    [Arguments]    ${expr}    ${modules}=
+    [Documentation]    ${status} = 求值 \ 0 < ${result} < 10
+    ...
+    ...    ${down} = \ 求值 \ int(${result})
+    ...
+    ...    ${up} = 求值 \ math.ceil(${result}) \ math
+    ...
+    ...    ${random} = 求值 random.randint(0, sys.maxint) \ random,sys
+    ${res}    Evaluate    ${expr}    ${modules}
+    [Return]    ${res}
+
+退出For循环
+    Exit For Loop
+
+条件成立退出For循环
+    [Arguments]    ${arg}
+    Exit For Loop If    ${arg}
+
+失败
+    [Arguments]    ${msg}=    @{tag}
+    [Documentation]    使带有选择标签的测试失败，并给出失败信息，例如：
+    ...    失败 "选择失败的case" "aaa" "bbb" "ccc"
+    ...    ------------------------------------
+    ...    则带有 aaa bbb ccc 标签的测试案例都会失败，并附有 "选择失败的case" 信息
+    Fail    ${msg}    @{tag}
+
+致命错误
+    [Arguments]    ${msg}=
+    [Documentation]    停止所有测试案例执行
+    Fatal Error    ${msg}
+
+查找次数
+    [Arguments]    ${item1}    ${item2}
+    [Documentation]    从item1里面查找item2 出现的次数
+    ${res}    Get Count    ${item1}    ${item2}
+    [Return]    ${res}
+
+获取长度
+    [Arguments]    ${item}
+    ${res}    Get Length    ${item}
+    [Return]    ${res}
+
+获取Lib实例
+    [Arguments]    ${name}
+    ${res}    Get Library Instance    ${name}
+    [Return]    ${res}
+
+获取时间
+    [Arguments]    ${format}=timestamp    ${time_}=NOW
+    [Documentation]    ${time}= 获取时间
+    ...
+    ...    ${secs}= 获取时间 epoch
+    ...
+    ...    ${year}= 获取时间 return year
+    ...
+    ...    ${yyyy}= ${mm} ${dd} Get Time year,month,day
+    ...
+    ...    @{time}= Get Time year month day hour min sec
+    ...
+    ...    ${y} ${s}= Get Time seconds and year
+    ...    ---------------------------------------------------------------------
+    ...    ${time} = '2006-03-29 15:06:21'
+    ...
+    ...    ${secs} = 1143637581
+    ...
+    ...    ${year} = '2006'
+    ...
+    ...    ${yyyy} = '2006', ${mm} = '03', ${dd} = '29'
+    ...
+    ...    @{time} = ['2006', '03', '29', '15', '06', '21']
+    ...
+    ...    ${y} = '2006'
+    ...
+    ...    ${s} = '21'
+    ${res}    Get Time    ${format}    ${time_}
+
+获取变量值
+    [Arguments]    ${name}    ${default}=
+    [Documentation]    ${x}= 获取变量值 ${a} default
+    ...
+    ...    ${y}= 获取变量值 ${a} ${b}
+    ...
+    ...    ${z}= 获取变量值 ${z}
+    ...    -----------------------------------------------
+    ...    ${x} gets value of ${a} if ${a} exists and string "default" otherwise
+    ...
+    ...    ${y} gets value of ${a} if ${a} exists and value of ${b} otherwise
+    ...
+    ...    ${z} is set to Python `None` if it does not exist previously
+    ${res}    Get Variable Value    ${name}    ${default}
+    [Return]    ${res}
+
+获取变量
+    [Documentation]    返回当前测试案例范围内所有可用变量的字典
+    @{vars}    Get Variables
+    [Return]    @{vars}
+
+导入库
+    [Arguments]    ${name}    @{args}
+    [Documentation]    导入给定名字的库和可选的操作参数：
+    ...
+    ...    当测试案例运行的时候，这个功能允许动态的导入Library.
+    ...
+    ...    导入库 MyLibrary
+    ...
+    ...    导入库 ${CURDIR}/../Library.py arg1 named=args
+    ...
+    ...    导入库 ${LIBRARIES}/Lib.java arg WITH NAME JavaLib
+    Import Library    ${name}    @{args}
+
+导入资源
+    [Arguments]    ${path}
+    [Documentation]    导入给出路径的资源文件：
+    ...
+    ...    导入资源 ${CURDIR}/resource.txt
+    ...
+    ...    导入资源 ${CURDIR}/../resources/resource.html
+    Import Resource    ${path}
+
+导入变量
+    [Arguments]    ${path}    @{args}
+    [Documentation]    导入给出路径的变量文件，并给出可选参数。
+    ...
+    ...    导入变量 ${CURDIR}/variables.py
+    ...
+    ...    导入变量 ${CURDIR}/../vars/env.py arg1 arg2
+    Import Variables    ${path}    @{args}
+
+关键字应该存在
+    [Arguments]    ${name}    ${msg}=
+    [Documentation]    在当前运行测试案例范围内，关键字应该存在，否则测试失败。
+    Keyword Should Exist    ${name}    ${msg}
+
+长度应该是
+    [Arguments]    ${item}    ${length}    ${msg}=
+    Length Should Be    ${item}    ${length}    ${msg}
+
+多个日志
+    [Arguments]    @{msg}
+    Log Many    @{msg}
+
+输出变量
+    [Arguments]    ${lvl}=INFO
+    [Documentation]    输出当前所有范围内给定级别的日志
+    Log Variables    ${lvl}
+
+不操作
+    [Documentation]    什么都不做
+    No Operation
+
+执行通过
+    [Arguments]    ${msg}    @{tags}
+    [Documentation]    需要参数： 信息，标签
+    ...
+    ...    作用：使带给定标签的测试案例通过，并添加描述信息。
+    Pass Execution    ${msg}    @{tags}
+
+条件成立执行通过
+    [Arguments]    ${condition}    ${msg}    @{tags}
+    [Documentation]    条件成立时，使带指定标签的案例测试通过，并给出信息。
+    Pass Execution If    ${condition}    ${msg}    @{tags}
+
+正则规避
+    [Arguments]    @{patterns}
+    [Documentation]    这个功能可以使关键字在模式中正常匹配，而不会当做关键字去执行。
+    @{regx}    Regexp Escape    @{patterns}
+    [Return]    @{regx}
+
+删除标签
+    [Arguments]    @{tags}
+    [Documentation]    例子：
+    ...    删除标签 mytag something-* ?ython
+    Remove Tags    @{tags}
+
+重复关键字
+    [Arguments]    ${times}    ${name}    @{args}
+    [Documentation]    指定关键字重复执行多少次：
+    ...
+    ...    重复关键字 5 Goto Previous Page
+    ...
+    ...    重复关键字 ${var} Some Keyword arg1 arg2
+    Repeat Keyword    ${times}    ${name}    @{args}
+
+替换变量
+    [Arguments]    ${text}
+    Replace Variables    ${text}
+
+从关键字返回
+    [Arguments]    @{return_values}
+    [Documentation]    从未关闭的关键字中返回值。
+    @{kwd}    Return From Keyword    @{return_values}
+    [Return]    @{kwd}
+
+Find Index
+    [Arguments]    ${element}    @{items}
+    ${index} =    Set Variable    ${0}
+    : FOR    ${item}    IN    @{items}
+    \    Return From Keyword If    '${item}' == '${element}'    ${index}
+    \    ${index} =    Set Variable    ${index + 1}
+    Return From Keyword    ${-1}    # Also [Return] would work here.
+
+条件成立从关键字返回
+    [Arguments]    ${condition}    @{return_values}
+    @{val}    Return From Keyword If    ${condition}    @{return_values}
+    [Return]    @{val}
+
+运行关键字
+    [Arguments]    ${name}    @{args}
+    [Documentation]    执行给定的关键和相关参数。
+    Run Keyword    ${name}    @{args}
+
+运行关键字期望错误
+    [Arguments]    ${expected_error}    ${name}    @{args}
+    Run Keyword And Expect Error    ${expected_error}    ${name}    @{args}
+
+运行关键字忽略错误
+    [Arguments]    ${name}    @{args}
+    Run Keyword And Ignore Error    ${name}    @{args}
+
+运行关键字返回状态
+    [Arguments]    ${name}    @{args}
+    ${stat}    Run Keyword And Return Status    ${name}    @{args}
+    [Return]    ${stat}
+
+条件成立运行关键字
+    [Arguments]    ${condition}    ${kwd}    @{args}
+    Run Keyword If    ${condition}    ${kwd}    @{args}
+
+所有最高级案例通过运行关键字
+
+所有案例通过运行关键字
+    [Arguments]    ${name}    @{args}
+    Run Keyword If All Tests Passed    ${name}    @{args}
+
+任意最高级案例失败运行关键字
+    [Arguments]    ${name}    @{args}
+    Run Keyword If Any Critical Tests Failed    ${name}    @{args}
+
+任意案例失败运行关键字
+    [Arguments]    ${name}    @{args}
+    Run Keyword If Any Tests Failed    ${name}    @{args}
+
+案例失败运行关键字
+    [Arguments]    ${name}    @{args}
+    [Documentation]    分享到微信相关操作：
+    ...    1.分享到好友
+    ...    2.分享到朋友圈
+    Run Keyword If Test Failed    ${name}    @{args}
+
+案例通过运行关键字
+    [Arguments]    ${name}    @{args}
+    Run Keyword If Test Passed    ${name}    @{args}
+
+超时运行关键字
+    [Arguments]    ${name}    @{args}
+    Run Keyword If Timeout Occurred    ${name}    @{args}
+
+条件失败运行关键字
+    [Arguments]    ${condition}    ${name}    @{args}
+    Run Keyword Unless    ${condition}    ${name}    @{args}
+
+运行多个关键字
+    [Arguments]    @{args}
+    [Documentation]    运行多个关键字 \ Initalize database \ \ \ | \ \ \ \ Start Server \ \ | \ \ \ Clear Logs \
+    Run Keywords    @{args}
+
+设置全局变量
+    [Arguments]    ${var}    ${val}
+    [Documentation]    设置全局变量 \ \ myvar \ \ \ value
+    Set Global Variable    ${var}    ${val}
+
+设置库搜索命令
+    [Arguments]    @{libs}
+    Set Library Search Order    @{libs}
+
+设置日志级别
+    [Arguments]    ${lvl}
+    Set Log Level    ${lvl}
+
+设置测试套件文档
+    [Arguments]    ${doc}    ${append}=False    ${top}=False
+    Set Suite Documentation    ${doc}    ${append}    ${top}
+
+设置测试套件标题
+    [Arguments]    ${name}    ${value}    ${append}=False    ${top}=False
+    Set Suite Metadata    ${name}    ${value}    ${append}    ${top}
+
+设置测试套件变量
+    [Arguments]    ${name}    @{values}
+    Set Suite Variable    ${name}    @{values}
+
+设置标签
+    [Arguments]    @{tags}
+    Set Tags    @{tags}
+
+设置测试案例文档
+    [Arguments]    ${doc}    ${append}=False
+    Set Test Documentation    ${doc}    ${append}
+
+设置测试案例信息
+    [Arguments]    ${msg}    ${append}=False
+    Set Test Message    ${msg}    ${append}
+
+设置测试案例变量
+    [Arguments]    ${name}    @{values}
+    Set Test Variable    ${name}    @{values}
+
+设置变量
+    [Arguments]    ${values}
+    ${var}    Set Variable    ${values}
+    [Return]    ${var}
+
+条件成立设置变量
+    [Arguments]    ${condition}    @{values}
+    ${var}    Set Variable IF    ${condition}    @{values}
+    [Return]    ${var}
+
+应该为空
+    [Arguments]    ${item}    ${msg}=
+    Should Be Empty    ${item}    ${msg}
+
+应该相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=True
+    Should Be Equal    ${first}    ${second}    ${msg}    ${values}
+
+转成整数后应该相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=True    ${base}=
+    [Documentation]    转成整型后应该相等 \ \ 42 \ ${42} \ 'Error message'
+    Should Be Equal As Integers    ${first}    ${second}    ${msg}    ${values}    ${base}
+
+转成数字之后应该相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=Ture    ${precision}=6
+    Should Be Equal As Numbers    ${first}    ${second}    ${msg}    ${values}    ${precision}
+
+转成字符串后应该相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=True
+    Should Be Equal As Strings    ${first}    ${second}    ${msg}    ${values}
+
+应该为真
+    [Arguments]    ${condition}    ${msg}
+    Should Be True    ${condition}    ${msg}
+
+应该包含
+    [Arguments]    ${item1}    ${item2}    ${msg}=    ${values}=True
+    Should Contain    ${item1}    ${item2}    ${msg}    ${values}
+
+应该包含x次
+    [Arguments]    ${item1}    ${item2}    ${count}    ${msg}=
+    Should Contain X Times    ${item1}    ${item2}    ${count}    ${msg}
+
+结尾应该是
+    [Arguments]    ${str1}    ${str2}    ${msg}=    ${values}=True
+    [Documentation]    如果str1不是以str2结尾，测试案例失败。
+    Should End With    ${str1}    ${str2}    ${msg}    ${values}
+
+应该匹配
+    [Arguments]    ${string}    ${pattern}    ${msg}=    ${values}=True
+    Should Match    ${string}    ${pattern}    ${msg}    ${values}
+
+应该匹配正则
+    [Arguments]    ${string}    ${pattern}    ${msg}=    ${values}=True
+    Should Match Regexp    ${string}    ${pattern}    ${msg}    ${values}
+
+应该不为空
+    [Arguments]    ${item}    ${msg}=
+    Should Not Be Empty    ${item}    ${msg}
+
+应该不相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=True
+    Should Not Be Equal    ${first}    ${second}    ${msg}    ${values}
+
+转成整数后应该不相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=True    ${base}=
+    Should Not Be Equal As Integers    ${first}    ${second}    ${msg}    ${values}
+
+转成数字后应该不相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=Ture    ${precision}=6
+    Should Not Be Equal As Numbers    ${first}    ${second}    ${msg}    ${values}
+
+转成字符串后应该不相等
+    [Arguments]    ${first}    ${second}    ${msg}=    ${values}=True
+    Should Not Be Equal As Strings    ${first}    ${second}    ${msg}    ${values}
+
+应该为假
+    [Arguments]    ${condition}    ${msg}=
+    Should Not Be True    ${condition}    ${msg}
+
+不应该包含
+    [Arguments]    ${item1}    ${item2}    ${msg}=    ${values}=True
+    Should Not Contain    ${item1}    ${item2}    ${msg}    ${values}
+
+结尾应该不是
+    [Arguments]    ${str1}    ${str2}    ${msg}=    ${values}=True
+    Should Not End With    ${str1}    ${str2}    ${msg}    ${values}
+
+不应该匹配
+    [Arguments]    ${string}    ${pattern}    ${msg}=    ${values}=True
+    Should Not Match    ${string}    ${pattern}    ${msg}    ${values}
+
+不应该匹配正则
+    [Arguments]    ${string}    ${pattern}    ${msg}=    ${values}=True
+    Should Not Match Regexp    ${string}    ${pattern}    ${msg}    ${values}
+
+开头不应该是
+    [Arguments]    ${string}    ${pattern}    ${msg}=    ${values}=True
+    Should Not Start With    ${string}    ${pattern}    ${msg}    ${values}
+
+开头应该是
+    [Arguments]    ${string}    ${pattern}    ${msg}=    ${values}=True
+    Should Start With    ${string}    ${pattern}    ${msg}    ${values}
+
+睡眠
+    [Arguments]    ${time}    ${reason}=
+    [Documentation]    睡眠 42
+    ...
+    ...    睡眠 1.5
+    ...
+    ...    睡眠 2 minutes 10 seconds
+    ...
+    ...    睡眠 10s \ 'Wait for a reply'
+    Sleep    ${time}    ${reason}
+
+变量应该存在
+    [Arguments]    ${name}    ${msg}=
+    Variable Should Exist    ${name}    ${msg}
+
+变量应该不存在
+    [Arguments]    ${name}    ${msg}=
+    Variable Should Not Exist    ${name}    ${msg}
+
+等待关键字成功
+    [Arguments]    ${timeout}    ${retry_interval}    ${name}    @{args}
+    Wait Until Keyword Succeeds    ${timeout}    ${retry_interval}    ${name}    @{args}
+
+xpath应该匹配次数
+    [Arguments]    ${xpath}    ${count}
+    Xpath Should Match X Times    ${xpath}    ${count}
+
+上传文件
+    [Arguments]    ${path}    ${data}    ${encode}=base64
+    Push File    ${path}    ${data}    ${encode}
+
+元素不应该包含文本
+    [Arguments]    ${locator}    ${expected}    ${msg}=
+    Element Should not Contain Text    ${locator}    ${expected}    ${msg}
+
+元素值应该是
+    [Arguments]    ${locator}    ${expected}
+    Element Value Should Be    ${locator}    ${expected}
+
+元素名应该是
+    [Arguments]    ${path}    ${name}
+    Element Name Should Be    ${path}    ${name}
+
+元素属性应该匹配
+    [Arguments]    ${locator}    ${attr_name}    ${match_pattern}    ${regx}=False
+    Element Attribute Should Match    ${locator}    ${attr_name}    ${match_pattern}    ${regx}
+
+元素应该包含文本
+    [Arguments]    ${locator}    ${expected}    ${msg}=None
+    Element Should Contain Text    ${locator}    ${expected}    ${msg}
+
+元素应该失效
+    [Arguments]    ${locator}    ${level}=INFO
+    Element should be disabled    ${locator}    ${level}
+
+元素应该有效
+    [Arguments]    ${locator}    ${level}=INFO
+    Element should be enabled    ${locator}    ${level}
+
+元素文本应该是
+    [Arguments]    ${locator}    ${expected}    ${msg}=None
+    Element Text Should Be    ${locator}    ${expected}    ${msg}
+
+关闭当前应用
+    Close Application
+
+关闭所有应用
+    Close All Applications
+
+切换应用
+    [Arguments]    ${index_or_alias}
+    Switch Application    ${index_or_alias}
+
+切换页面内容
+    [Arguments]    ${webview}
+    Switch To Context    ${webview}
+
+卸载应用
+    [Arguments]    ${application_id}
+    Remove Application    ${application_id}
+
+后台运行
+    [Arguments]    ${sec}
+    Background App    ${sec}
+
+向上滚动
+    [Arguments]    ${locator}
+    Scroll Up    ${locator}
+
+向下滚动
+    [Arguments]    ${locator}
+    Scroll Down    ${locator}
+
+打印资源
+    [Arguments]    ${level}
+    Log Source    ${level}
+
+打开URL
+    [Arguments]    ${url}
+
+[Documentation]
+    Example:    ...    打开应用    ...    http://localhost:4755/wd/hub \ platformName=iOS \ platformVersion=7.0    deviceName='iPhone Simulator'    browserName=Safari
+    ...    打开URL \ http://m.webapp.com
+    Go To URL    ${url}
+
+打开应用
+    [Arguments]    ${url}    ${platformName}    ${version}    ${deviceName}    ${app}
+    [Documentation]    打开应用 ${url} ${platformName} ${version} \ \ ${devicename} ${app} @{args}
+    ...
+    ...    例如：
+    ...
+    ...    打开应用 http://localhost:4723/wd/hub Android 5.1.1 5e25d20d ${CURDIR}${/}app${/}fft.apk
+    ...
+    ...    ${url} 是用于访问应用的地址，一般是固定的。 url 和 端口可以根据具体地址修改。
+    ...    ${version} \ 是安卓的版本
+    ...    ${devicename} 是手机的UDID, 可以打开cmd 然后用 adb devices -l \ 看到设备列表。
+    ...    UDID 是看到的第一列的内容，真机是一串字符串，模拟器是 \ ip:port \ 的形式
+    ...    ${app} 是apk 存放的路径 ${CURDIR} 系统变量，取得当前脚本路径。 ${/} 系统变量 '/'
+    open application    ${url}    platformName=${platformName}    platformVersion=${version}    deviceName=${deviceName}    app=${app}
+
+按关键字
+    [Arguments]    ${keycode}    ${metastate}=None
+    Press Keycode    ${keycode}    ${metastate}
+
+摇动手机
+    Shake
+
+放大元素
+    [Arguments]    ${locator}    ${percent}=200%    ${step}=1
+    Zoom    ${locator}    ${percent}    ${step}
+
+敲击元素
+    [Arguments]    ${locator}
+    Tap    ${locator}
+
+横屏
+    [Documentation]    手机设置横屏
+    LANDSCAPE
+
+清除文本
+    [Arguments]    ${locator}
+    Clear Text    ${locator}
+
+滑动
+    [Arguments]    ${start_x}    ${start_y}    ${end_x}    ${end_y}
+    swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}
+
+滚动
+    [Arguments]    ${start_locator}    ${end_locator}
+    [Documentation]    从一个元素滚动到另一个元素
+    Scroll    ${start_locator}    ${end_locator}
+
+点击元素
+    [Arguments]    ${locator}
+    Click Element    ${locator}
+
+点击元素坐标
+    [Arguments]    ${coordinate_x}    ${coordinate_y}
+    Click Element At Coordinates    ${coordinate_x}    ${coordinate_y}
+
+点击固定点
+    [Arguments]    ${x}    ${y}    @{args}
+    Click A Point    ${x}    ${y}    @{args}
+
+点击按钮
+    [Arguments]    ${index_or_name}
+    Click Button    ${index_or_name}
+
+点击文本
+
+[Arguments]
+    ${text}    ${exact_match}=false
+
+[Documentation]
+    点击匹配到文本的元素：
+
+...
+
+...
+    点击文本 "text"
+
+...
+    点击文本 "text" True
+
+...
+
+...
+    默认模糊匹配所有元素，可以设置成精确匹配。
+
+...
+    如果可以匹配到两个或两个以上的元素，那么需要用 click Element 元素，去处理。
+    Click Text    ${text}    ${exact_match}
+
+睡眠
+    [Arguments]    ${sec}
+    sleep    ${sec}
+
+竖屏
+    PORTRAIT
+
+等待页面元素出现
+    [Arguments]    ${locator}    ${timeout}=100    ${err}=None
+    Wait Until Page Contains Element    ${locator}    ${timeout}    ${err}
+
+等待元素出现文本
+    [Arguments]    ${text}    ${timeout}=10    ${err}=None
+    Wait Until Page Contains    ${text}    ${timeout}    ${err}
+
+等待页面不包含元素
+    [Arguments]    ${locator}    ${timeout}=10    ${err}=None
+    Wait Until Page Does Not Contain Element    ${locator}    ${timeout}    ${err}
+
+等待页面不包含文本
+    [Arguments]    ${text}    ${timeout}=10    ${err}=None
+    Wait Until Page Does Not Contain    ${text}    ${timeout}    ${err}
+
+缩小元素
+    [Arguments]    ${locator}    ${percent}=200%    ${step}=1
+    Pinch    ${locator}    ${percent}    ${step}
+
+获取Appium超时时间
+    ${timeout}    Get Appium Timeout
+    [Return]    ${timeout}
+
+获取Web元素
+    [Arguments]    ${locator}
+    [Documentation]    获取匹配的定位器的第一个元素：
+    ${element} 获取Web元素 id=name    点击元素 ${element}
+    ${element}    Get Webelement    ${locator}
+    [Return]    ${element}
+
+获取元素坐标
+    [Arguments]    ${locator}
+    ${location}    Get Element Location    ${locator}
+    [Return]    ${location}
+
+获取元素尺寸
+    [Arguments]    ${locator}
+    ${size}    Get Element Size    ${locator}
+    [Return]    ${size}
+
+获取元素属性
+    [Arguments]    ${locator}    ${name_or_value}
+    [Documentation]    获取元素属性：（name 或者 value)
+    ...    ${val} \ 获取元素属性 ${locator} ${name_or_value}
+    ...
+    ...    例如：
+    ...    ${val} 获取元素属性 id=xxxx name
+    ...    ${val} 获取元素属性 id=xxxx value
+    ${val}    Get Element Attribute    ${locator}    ${name_or_value}
+    [Return]    ${val}
+
+获取匹配xpath数
+    [Arguments]    ${xpath}
+    [Documentation]    例如：
+    ...
+    ...    ${count} \ \ \ 获取匹配xpath数 \ \ //android.view.View[@text='Test']
+    ${count}    Get Matching Xpath Count    ${xpath}
+    [Return]    ${count}
+
+获取可见文本
+    ${contents}    Get Contexts
+    [Return]    ${contents}
+
+获取当前文本
+    ${context}    Get Current Context
+    [Return]    ${context}
+
+获取所有web元素
+    [Arguments]    ${locator}
+    [Documentation]    @{element} 获取所有web元素 id=my_element
+    ...    点击元素 @{element}[2]
+    @{element}    Get Webelements    ${locator}
+    [Return]    @{element}
+
+获取文件
+    [Arguments]    ${file_path}    ${decode}=False
+    pull file    ${file_path}    ${decode}
+
+获取文件夹
+    [Arguments]    ${folder_path}    ${decode}=False
+    Pull Folder    ${folder_path}    ${decode}
+
+获取文本
+    [Arguments]    ${locator}
+    [Documentation]    获取符合元素的文本：
+    ...    ${text} \ 获取文本 \ //*[contains(@text,'foo')]
+    ${text}    Get Text    ${locator}
+    [Return]    ${text}
+
+获取网络连接情况
+    ${stat}    Get Network Connection Status
+    [Return]    ${stat}
+
+获取资源
+    ${source}    Get Source
+    [Return]    ${source}
+
+设置Appium超时
+    [Arguments]    ${sec}
+    Set Appium Timeout    ${sec}
+
+设置网络连接状态
+    [Arguments]    ${sec}
+    Set Network Connection Status    ${sec}
+
+输入值
+    [Arguments]    ${locator}    ${val}
+    Input Value    ${locator}    ${val}
+
+输入密码
+    [Arguments]    ${path}    ${passwd}
+    Input Password    ${path}    ${passwd}
+
+输入文本
+    [Arguments]    ${path}    ${text}
+    Input Text    ${path}    ${text}
+
+返回
+    [Documentation]    浏览器返回上一个的页面
+    Go Back
+
+重置应用
+    Reset Application
+
+锁屏
+    [Arguments]    ${sec}
+    [Documentation]    这个方法只使用于IOS
+    Lock    ${sec}
+
+长按元素
+    [Arguments]    ${locator}
+    Long Press    ${locator}
+
+长按关键字
+    [Arguments]    ${keycode}    ${metastate}=None
+    [Documentation]    keycode 可以在这个网址里面找到：
+    ...    http://developer.android.com/reference/android/view/KeyEvent.html.
+    ...
+    ...    Args:
+    ...    \ \ \ \ - keycode - the keycode to be sent to the device
+    ...    \ \ - metastate - meta information about the keycode being sent
+    Long Press Keycode    ${keycode}    ${metastate}
+
+隐藏键盘
+    Hide Keyboard
+
+页面不应该包含元素
+    [Arguments]    ${locator}    ${lvl}=INFO
+    Page Should Not Contain Element    ${locator}    ${lvl}
+
+页面不应该包含文本
+    [Arguments]    ${locator}    ${lvl}=INFO
+    Page Should Not Contain Text    ${locator}    ${lvl}
+
+页面应该包含元素
+    [Arguments]    ${locator}    ${lvl}=INFO
+    Page Should Contain Element    ${locator}    ${lvl}
+
+页面应该包含文本
+    [Arguments]    ${locator}    ${lvl}=INFO
+    Page Should Contain Text    ${locator}    ${lvl}
+
+页面截图
+    [Arguments]    ${filename}=
+    Capture Page Screenshot    ${filename}

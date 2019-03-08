@@ -1,0 +1,120 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          appium_config_resource.txt    # android相关配置
+Resource          action_resource.txt
+Library           Custom    # ../site-packages/Custom/
+Resource          appium_resource.txt
+Resource          permission_resource.txt
+Resource          guide_page_resource.txt
+
+*** Keywords ***
+android_app_start
+    [Documentation]    启动app进入首页，判断是否存在更新版本
+    uninstall_install_app    # 卸载后安装app
+    open_app    appium    # 打开app，输入参数
+    log    打开app
+    #if_protocol_click    # 华为手机判断条款弹框
+    #call_phone_permission    # 选择允许拨打电话权限
+    #save_phone_permission    # 允许存储权限
+    #read_app_list_permission    # 读取操作已安装应用列表
+    #read_app_list_permission    # 读取位置信息
+    swipe_left_ele    ${guidePage_launchBtn_elementByXpath}    4    # 向左滑动引导页面
+    if_launch_click    # 判断引导页是否存在运行按钮
+    wait_click_element    ${guidePage_launchBtn_elementById}    10s    # 点击关闭引导页面
+    # huawei_service    # 点击安装华为移动服务
+    ${result}    return_keyword_status    ${indexPage_updateBtn_elementById}
+    run keyword if    '${result}'=='False'    log    当前是最新版本
+    ...    ELSE    run keywords    click_element    ${closeWindow_elementById}
+    ...    AND    log    已经关闭升级提示
+    wait_element    ${indexPage_searchEditText_elementById}    10s
+    ${get_index_text}    get text    ${indexPage_searchEditText_elementById}
+    log    ${get_index_text}
+    page should contain text    ${get_index_text}    ${check_index_search_text}
+    Capture Page Screenshot
+
+android_app_start_uiautomator2
+    [Documentation]    启动app进入首页，判断是否存在更新版本
+    uninstall_install_app    # 卸载后安装app
+    open_app_uiautomator2    # 打开app
+    log    打开app
+    swipe_left_ele    ${guidePage_launchBtn_elementByXpath}    4
+    wait_click_element    ${guidePage_launchBtn_elementById}    10s
+    ${result}    return_keyword_status    ${indexPage_updateBtn_elementById}
+    run keyword if    '${result}'=='False'    log    当前是最新版本
+    ...    ELSE    run keywords    click_element    ${closeWindow_elementById}
+    ...    AND    log    已经关闭升级提示
+    wait_element    ${indexPage_searchEditText_elementById}    10s
+    ${get_index_text}    get text    ${indexPage_searchEditText_elementById}
+    log    ${get_index_text}
+    page should contain text    ${get_index_text}    ${check_index_search_text}
+    Capture Page Screenshot    # ${CAPTURE_NAME}
+
+uninstall_install_app
+    [Documentation]    卸载安装app
+    if_uninstall_install_app    ${UDID}    ${APP}    ${APP_PACKAGE}
+
+run_appium_app
+    [Arguments]    ${CAPTURE_NAME}    # 截图命名
+    log    启动appium服务
+    appium_setup
+    log    校验app是否存在？
+    uninstall_install_app
+    Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    udid=${UDID}    app=${APP}
+    ...    automationName=${AUTOMATION_NAME}    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    unicodeKeyboard=${UNICODE_KEYBOARD}    resetKeyboard=${RESET_KEYBOARD}
+    log    打开app
+    swipe_left_ele    ${guidePage_launchBtn_elementByXpath}    4
+    wait_click_element    ${guidePage_launchBtn_elementById}    10s
+    ${result}    return_keyword_status    ${indexPage_updateBtn_elementById}
+    run keyword if    '${result}'=='False'    log    当前是最新版本
+    ...    ELSE    run keywords    click_element    ${closeWindow_elementById}
+    ...    AND    log    已经关闭升级提示
+    wait_element    ${indexPage_searchEditText_elementById}    10s
+    ${get_index_text}    get text    ${indexPage_searchEditText_elementById}
+    log    ${get_index_text}
+    page should contain text    ${get_index_text}    ${check_index_search_text}
+    Capture Page Screenshot    # ${CAPTURE_NAME}
+    # log    关闭app服务
+    # Close All Applications
+    # log    关闭appium服务
+    # appium_teardown
+
+open_app
+    [Arguments]    ${automationName}    # 涉及参数appium，Uiautomator2
+    [Documentation]    需要输入参数：automationName=appium
+    ...    如果涉及toast需要输入Uiautomator2
+    log    appActivity=${APP_ACTIVITY}
+    log    appPackage=${APP_PACKAGE}
+    log    ${automationName}
+    Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    udid=${UDID}    app=${APP}
+    ...    automationName=${automationName}    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    unicodeKeyboard=${UNICODE_KEYBOARD}    resetKeyboard=${RESET_KEYBOARD}    noReset=true
+
+open_app_uiautomator2
+    [Documentation]    automationName=Uiautomator2
+    log    appActivity=${APP_ACTIVITY}
+    log    appPackage=${APP_PACKAGE}
+    Open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    udid=${UDID}    app=${APP}
+    ...    automationName=Uiautomator2    appPackage=${APP_PACKAGE}    appActivity=${APP_ACTIVITY}    #unicodeKeyboard=${UNICODE_KEYBOARD}    #resetKeyboard=${RESET_KEYBOARD}    #noReset=true
+
+android_app_start_no_uninstall
+    [Documentation]    启动app进入首页，判断是否存在更新版本
+    # uninstall_install_app    # 卸载后安装app
+    open_app    appium    # 打开app，输入参数
+    log    打开app
+    #if_protocol_click    # 华为手机判断条款弹框
+    #call_phone_permission    # 选择允许拨打电话权限
+    #save_phone_permission    # 允许存储权限
+    #read_app_list_permission    # 读取操作已安装应用列表
+    #read_app_list_permission    # 读取位置信息
+    #swipe_left_ele    ${guidePage_launchBtn_elementByXpath}    4    # 向左滑动引导页面
+    #if_launch_click    # 判断引导页是否存在运行按钮
+    #wait_click_element    ${guidePage_launchBtn_elementById}    10s    # 点击关闭引导页面
+    # huawei_service    # 点击安装华为移动服务
+    ${result}    return_keyword_status    ${indexPage_updateBtn_elementById}
+    run keyword if    '${result}'=='False'    log    当前是最新版本
+    ...    ELSE    run keywords    click_element    ${closeWindow_elementById}
+    ...    AND    log    已经关闭升级提示
+    wait_element    ${indexPage_searchEditText_elementById}    10s
+    ${get_index_text}    get text    ${indexPage_searchEditText_elementById}
+    log    ${get_index_text}
+    page should contain text    ${get_index_text}    ${check_index_search_text}
+    Capture Page Screenshot    # ${CAPTURE_NAME}

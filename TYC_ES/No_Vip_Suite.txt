@@ -1,0 +1,173 @@
+*** Settings ***
+Documentation     非vip涉及购买vip点
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Resource          run_app_resource.txt
+Resource          action_resource.txt
+Resource          login_page_resource.txt
+Resource          export_page_resource.txt
+Resource          vip_page_resource.txt
+Resource          check_resource.txt
+Resource          search_page_resource.txt    # 搜索公司和人方法
+Resource          search_relation_page_resource.txt
+Resource          common_resource.txt
+Library           AppiumLibrary
+Library           Custom
+
+*** Test Cases ***
+novip_export_nearby_company_data
+    [Documentation]    非vip导出附近公司数据，涉及功能：
+    ...    1.非vip【弹框】购买、优惠码、分享等相关操作
+    ...    2.非vip【查看全部VIP权益】-【成为VIP】购买、优惠码、分享等相关操作
+    ...    3.非vip【查看全部VIP权益】-【赠送好友VIP】购买、分享等相关操作，缺少优惠码操作
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击分类搜索入口
+    wait_click_element    ${indexPage_categorySearch_elementById}    20s    # 点击首页右上角的入口
+    log    判断是否存在分类搜索title
+    wait_click_element    ${CategorySearchPage_nearbyCompany_elementById}    20s    # 未登录，点击附近公司元素
+    log    跳转登录界面，需要登录才可以查看附近公司
+    novip_jump_login    # 需要登录，跳转登录窗口
+    wait_click_element    ${CategorySearchPage_nearbyCompany_elementById}    20s    # 已登录，点击附近公司元素
+    wait_click_element    ${NearbyCompanyPage_exportData_elementById}    30s    # 点击【导出数据】按钮
+    open_vipPage_toBecome_vipPage    # 进入【查看全部VIP权益】后，再进入VIP页面，进行该页面的相关操作
+    log    【返回上一级页面】
+    go_back
+    jump_openVip_window    ${vipOpen_topTitle_elementById}    开通VIP会员可导出数据    # 弹框购买VIP相关操作
+    #click_new_page_should    ${vipOpen_middleTitle_elementById}    点击【查看全部VIP权益】入口    ${vipPage_title_elementById}    ${check_vipPage_title}    # 点击【查看全部VIP权益】后，跳转VIP页面，验证页标题
+    # \ get_list_length    //android.view.View    10s
+    # click_list_elements    //android.view.View    10s
+    # ${a_ele}=    get_index_elements    //android.view.View    4    10s
+    #click_new_page_should    ${a_ele}    点击【赠送好友VIP】入口    ${getFriendVipPage_title_elementById}    ${check_getFriendVipPage_title}    # 点击【赠送好友VIP】后，跳转赠送好友VIP页面，验证页标题
+    # click_new_page_should    ${becomeVipPage_getFriendVip2_elementByXpath}    点击【赠送好友VIP】入口    ${getFriendVipPage_title_elementById}    ${check_getFriendVipPage_title}    # 点击【赠送好友VIP】后，跳转赠送好友VIP页面，验证页标题
+    #get_friend_vipPage    # 先进入【查看全部VIP权益】后，再进入【赠送好友VIP】后，进行相关操作
+
+novip_export_company_data
+    [Documentation]    非vip导出附近公司数据，涉及功能：
+    ...    1.非vip【弹框】购买验证title操作
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击总搜索入口
+    click_element    ${indexPage_companyTab_elementById}
+    log    输入搜索信息
+    search_company    ${keyword_company}
+    wait_click_element    ${NearbyCompanyPage_exportData_elementById}    20s    # 点击【导出数据】按钮
+    log    跳转登录界面
+    novip_jump_login    # 需要登录，跳转登录窗口
+    log    【打开开通vip窗口】
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    开通VIP会员可导出数据    #获取title是否与预期一致
+
+novip_more_select
+    [Documentation]    非vip点击更多筛选的条件，弹出非vip
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击总搜索入口
+    click_element    ${indexPage_companyTab_elementById}
+    log    输入搜索信息
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyMore_elementById}    20s    # 点击【更多筛选】按钮
+    wait_click_element    ${search_companyOpenVip_elementById}    20s    # 点击【成为VIP会员，使用高级筛选条件】文本
+    log    跳转登录界面
+    novip_jump_login    # 需要登录，跳转登录窗口
+    log    【打开开通vip窗口】
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可使用高级筛选条件    #获取title是否与预期一致
+
+novip_human
+    [Documentation]    非vip点击搜索列表中的法定代表人：
+    ...    1.查看人员详情弹出非vip
+    ...    2.查看人员详情的风险弹出非vip
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击总搜索入口
+    click_element    ${indexPage_companyTab_elementById}
+    log    输入搜索信息
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyEgalName_elementById}    20s    # 点击法定代表人
+    log    跳转登录界面
+    novip_jump_login    # 需要登录，跳转登录窗口
+    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    wait_click_element    ${humanPage_humanRisk_elementById}    20s    # 点击查看风险按钮
+    log    【人员详情风险信息】
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看天眼风险    #获取title是否与预期一致
+    go_back
+    swipe_up    # 向上滑动
+    log    【人员详情】
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看老板详情    #获取title是否与预期一致
+
+novip_company_info
+    [Documentation]    非vip公司详情内点击涉及vip点的维度
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击总搜索入口
+    click_element    ${indexPage_companyTab_elementById}
+    log    输入搜索信息
+    ${keyword_company}    retrun_open_excel_read_cell_data_by_coordinates_list    ${keywords_excel_path}    Company_Page    1    1
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyName_elementById}    10s
+    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断引导遮罩是否存在
+    # swipe_up_ele    ${companyPage_riskTitle_elementById}    3    True
+    wait_click_element    ${companyPage_riskTitle_elementById}    20s
+    log    跳转登录界面
+    novip_jump_login    # 需要登录，跳转登录窗口
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看天眼风险    #获取title是否与预期一致
+    go_back
+    swipe_up_ele    //android.widget.TextView[@text='天眼图谱']    5    True
+    wait_click_element    ${companyPage_structure_elementById}    20s
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看股权结构    #获取title是否与预期一致
+    go_back
+    swipe_up_ele    //android.widget.TextView[@text='企业背景']    5    True
+    wait_click_element    //android.widget.TextView[@text='股权结构']    20s
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看股权结构    #获取title是否与预期一致
+    go_back
+    wait_click_element    //android.widget.TextView[@text='最终受益人']    20s
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看最终受益人    #获取title是否与预期一致
+    go_back
+    wait_click_element    //android.widget.TextView[@text='实际控制权']    20s
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看实际控制权    #获取title是否与预期一致
+    go_back
+    wait_click_element    //android.widget.TextView[@text='财务简析']    20s
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看财务简析    #获取title是否与预期一致
+    go_back
+    swipe_up_ele    //android.widget.TextView[@text='问大家']    5    True
+    if_for_list_click    ${companyPage_info_elementById}    20s    enabled    ${vipOpen_topTitle_elementById}    VIP会员可无限次查看历史信息    # 点击公司维度中的名称属性是true
+
+novip_input_relation
+    [Documentation]    非vip输入要查的关系信息，弹出非vip
+    [Tags]    smoke
+    android_app_start
+    search_input_relation
+    log    跳转登录界面
+    novip_jump_login    # 需要登录，跳转登录窗口
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    VIP会员可无限次查关系    #获取title是否与预期一致
+    Capture Page Screenshot
+
+novip_send_message
+    [Documentation]    非vip选择超过三个数，当满足次数等于3时，跳出当前循环，弹出非vip
+    [Tags]    smoke
+    android_app_start    #启动app
+    log    点击总搜索入口
+    click_element    ${indexPage_companyTab_elementById}
+    log    输入搜索信息
+    search_company    ${keyword_company}
+    wait_click_element    ${search_companyBatchContact_elementById}    20s    # 点击【批量联系】按钮
+    log    跳转登录界面
+    novip_jump_login    # 需要登录，跳转登录窗口
+    : FOR    ${index}    IN RANGE    3
+    \    Exit For Loop If    ${index}==3    # 如果等于3就退出当前循环
+    \    ${get_ele}=    get_index_elements    ${search_companyResultCheck_elementById}    ${index}    20s    # 勾选要发送的公司
+    \    # \    log    ${get_ele}
+    \    click_element    ${get_ele}
+    \    Capture Page Screenshot    # 遍历点击截图操作
+    \    wait_click_element    ${search_companyMycard_send_elementById}    20s    # 点击去联系按钮
+    \    log    ${index}【打开批量联系窗口】
+    \    wait_click_element    ${batchContactPage_textViewCompany_elementById}    20s    # 批量联系公司编辑框
+    \    clear_input_text    ${batchContactPage_inputCompany_elementById}    岳华理发店    # 清空suggest的编辑框输入信息
+    \    wait_click_element    ${batchContactPage_companySuggest_elementById}    20s    # 点击suggest名字公司名称
+    \    clear_input_text    ${batchContactPage_personName_elementById}    爽哥测试    # 清空姓名并输入信息
+    \    clear_input_text    ${batchContactPage_teamworkIntent_elementById}    测试【合作意向】    # 清空合作意向并输入信息
+    \    wait_click_element    ${batchContactPage_send_elementById}    20s    # 点击去联系按钮
+    \    Capture Page Screenshot    # 点击批量联系操作，截图操作
+    \    wait_click_element    ${search_companyBatchContact_elementById}    20s    # 点击【批量联系】按钮
+    log    验证非vip弹购买vip窗口
+    get_elementTextShould_text    ${vipOpen_topTitle_elementById}    ${check_mycardMessage_title}    # 验证非vip批量名片次数弹框

@@ -1,0 +1,6 @@
+*** Settings ***
+Resource          android_element_resource.txt
+Library           AppiumLibrary
+
+*** Keywords ***
+get_human_detail

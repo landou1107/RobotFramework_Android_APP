@@ -1,0 +1,66 @@
+*** Settings ***
+Documentation     涉及华为手机权限操作
+
+*** Keywords ***
+if_protocol_click
+    [Documentation]    判断协议标题是否存在，进行后续操作
+    ${result}    return_keyword_status    ${protocol_title_elementById}    # 判断条款弹框的title元素是否存在
+    run keyword if    '${result}'=='False'    log    @@@@-【天眼查服务条款】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击安装
+    ...    AND    wait_click_element    ${protocol_agree_elementById}    5s    # 点击【同意】按钮
+    # get_elementTextShould_text    com.xxxx.xxxx:id/txt_title    天眼查服务条款    # 判断条款弹框的title元素是否存在
+    # wait_click_element    com.xxxx.xxxx:id/btn_pos    20s    # 点击【同意】按钮
+
+if_alert_click
+    [Documentation]    判断声明标题是否存在，进行后续操作
+    ${result}    return_keyword_status    ${system_protocol_title_elementById}    # 判断条款弹框的title元素是否存在
+    run keyword if    '${result}'=='False'    log    @@@@-【授权声明】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击安装
+    ...    AND    wait_click_element    ${system_protocol_install_elementById}    5s    # 点击【安装】按钮
+    # get_elementTextShould_text    android:id/alertTitle    授权声明    # 判断条款弹框的title元素是否存在
+    # wait_click_element    android:id/button1    20s    # 点击【同意】按钮
+
+read_app_list_permission
+    [Documentation]    读取操作已安装应用列表
+    ${result}    return_keyword_status    ${huawei_system_allow_elementById}
+    run keyword if    '${result}'=='False'    log    @@@@-【允许】按钮未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击【允许】按钮
+    ...    AND    wait_click_element    ${huawei_system_allow_elementById}    5s    # 点击【允许】按钮
+
+call_phone_permission
+    [Documentation]    操作拨打电话权限
+    ${result}    return_keyword_status    ${system_permission_allow_elementById}
+    run keyword if    '${result}'=='False'    log    @@@@-【始终允许】按钮未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击【始终允许】按钮
+    ...    AND    wait_click_element    ${system_permission_allow_elementById}    5s    # 点击【始终允许】按钮
+
+save_phone_permission
+    [Documentation]    操作存储权限
+    ${result}    return_keyword_status    ${system_permission_allow_elementById}
+    run keyword if    '${result}'=='False'    log    @@@@-【始终允许】按钮未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击【始终允许】按钮
+    ...    AND    wait_click_element    ${system_permission_allow_elementById}    5s    # 点击【始终允许】按钮
+
+risk_desc_install
+    [Documentation]    风险提示弹框操作
+    # log    @@@@@@@-risk_desc_install
+    ${result}    return_keyword_status    ${system_permission_continue_elementById}    # 判断风险文本
+    run keyword if    '${result}'=='False'    log    @@@@-【我已充分了解该风险，继续安装】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击【继续安装】
+    ...    AND    wait_click_element    ${system_permission_continue_elementById}    5s    # 勾选【我已充分了解该风险，继续安装】
+
+risk_desc_continue_install
+    [Documentation]    风险提示弹框继续安装操作
+    # log    @@@@@@@-risk_desc_continue_install
+    ${result}    return_keyword_status    ${system_protocol_title_elementById}    # 判断风险title
+    run keyword if    '${result}'=='False'    log    @@@@-【风险提示title】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击【继续安装】
+    ...    AND    wait_click_element    ${system_permission_goinstall_elementById}    5s    # 点击【继续安装
+
+huawei_service
+    [Documentation]    首页华为移动服务操作
+    ${result}    return_keyword_status    ${system_protocol_message_elementById}    # 判断华为移动服务安装消息
+    run keyword if    '${result}'=='False'    log    @@@@-【华为移动服务】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击取消【华为移动服务】
+    ...    AND    wait_click_element    ${system_protocol_cancel_elementById}    5s    # 点击【取消】
+    # ...    AND    wait_click_element    android:id/button1    5s    # 点击【安装】

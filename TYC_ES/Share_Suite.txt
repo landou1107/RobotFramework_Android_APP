@@ -1,0 +1,62 @@
+*** Settings ***
+Documentation     分享相关涉及点
+Suite Setup       appium_setup
+Suite Teardown    appium_teardown
+Test Teardown     Close All Applications
+Resource          run_app_resource.txt
+Resource          action_resource.txt
+Resource          login_page_resource.txt
+Resource          vip_page_resource.txt
+Resource          search_page_resource.txt
+Resource          share_page_resource.txt
+Library           AppiumLibrary
+Library           Custom
+
+*** Test Cases ***
+share_company_info
+    [Documentation]    分享公司详情操作：
+    ...    1.微信好友
+    ...    2.微信朋友圈
+    [Tags]    smoke
+    android_app_start
+    search_company    ${share_keyword_company}    # 主搜索公司信息
+    wait_click_element    ${search_companyName_elementById}    20s    # 点击搜索结果列表中的公司名字
+    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    wait_click_element    ${companyPage_shareBtn_elementById}    20s    # 点击公司详情页的分享按钮
+    wait_click_element    ${share_wechatPengYouQuanBtn_elementById}    20s    # 点击公司详情页的分享朋友圈按钮
+    if_weixin_logined    ${wechatLoginPage_title_elementByXpath}    # 判断是否登录微信
+    share_wechat_pengyouquan_back_tyc    ${companyPage_companyDetailName_elementById}    北京拜克洛克科技有限公司    公司详情分享-分享朋友圈-测试    # 分享微信朋友圈操作
+    wait_click_element    ${companyPage_shareBtn_elementById}    20s    # 点击公司详情页的分享按钮
+    wait_click_element    ${share_wechatFriendsBtn_elementById}    20s    # 点击公司详情页的分享好友按钮
+    share_wechat_back_tyc    ${companyPage_companyDetailName_elementById}    北京拜克洛克科技有限公司    公司详情分享-分享好友-测试    # 分享微信朋友圈操作
+    Capture Page Screenshot
+
+share_company_risk
+    [Documentation]    分享公司风险操作：
+    ...    1.微信好友
+    ...    2.微信朋友圈
+    [Tags]    smoke
+    android_app_start
+    search_company    ${share_keyword_company}    # 主搜索公司信息
+    wait_click_element    ${search_companyName_elementById}    20s    # 点击搜索结果列表中的公司名字
+    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    wait_click_element    ${companyPage_risk_elementById}    20s    # 点击公司详情页的风险按钮
+    log    跳转登录界面
+    vip_jump_login    # 需要登录，跳转登录窗口
+    wait_click_element    ${companyRiskPage_shareBtn_elementById}    20s    # 点击公司风险分享按钮
+    wait_click_element    ${share_wechatPengYouQuanBtn_elementById}    20s    # 点击公司风险的分享朋友圈按钮
+    if_weixin_logined    ${wechatLoginPage_title_elementByXpath}    # 判断是否登录微信
+    share_wechat_pengyouquan_back_tyc    ${companyRiskPage_companyName_elementById}    北京拜克洛克科技有限公司    【公司风险分享】-分享朋友圈-测试    # 分享微信朋友圈操作
+    wait_click_element    ${companyRiskPage_shareBtn_elementById}    20s    # 点击公司风险的分享按钮
+    wait_click_element    ${share_wechatFriendsBtn_elementById}    20s    # 点击公司风险的分享好友按钮
+    share_wechat_back_tyc    ${companyRiskPage_companyName_elementById}    北京拜克洛克科技有限公司    【公司风险分享】-分享好友-测试    # 分享微信朋友圈操作
+    wait_click_element    ${companyRiskPage_saveBtn_elementById}    20s    # 点击公司风险的存长图按钮
+    wait_click_element    ${companyRiskPage_sharePicBtn_elementById}    20s    # 点击公司风险的存长图分享按钮
+    wait_click_element    ${share_wechatPengYouQuanBtn_elementById}    20s    # 点击公司风险的存长图分享朋友圈按钮
+    share_wechat_pengyouquan_back_tyc    ${companyRiskPage_companyTitle_elementById}    长图预览    【公司风险长图分享】-分享朋友圈-测试    # 分享微信朋友圈操作
+    wait_click_element    ${companyRiskPage_sharePicBtn_elementById}    20s    # 点击公司风险的存长图分享按钮
+    wait_click_element    ${share_wechatFriendsBtn_elementById}    20s    # 点击公司风险的存长图分享好友按钮
+    share_wechat_back_tyc    ${companyRiskPage_companyTitle_elementById}    长图预览    【公司风险长图分享】-分享好友-测试    # 分享微信朋友圈操作
+    wait_click_element    ${companyRiskPage_picSave_elementById}    20s    # 点击公司风险的存长图保存按钮
+    Capture Page Screenshot
+    go_back

@@ -1,0 +1,131 @@
+*** Settings ***
+Documentation     涉及所有搜索方法
+Library           AppiumLibrary
+Resource          android_element_resource.txt    # Android元素
+Resource          text_resource.txt    # 文本信息
+Resource          check_resource.txt    # 校验文本信息
+Resource          login_page_resource.txt    # 登录相关操作
+Resource          action_resource.txt
+Resource          vip_page_resource.txt    # vip相关操作资源
+
+*** Keywords ***
+search_company
+    [Arguments]    ${keyword}    # 搜索关键字
+    [Documentation]    输入关键字搜索公司
+    wait_click_element    ${indexPage_searchEditText_elementById}    5s
+    log    查公司，输入关键字【${keyword}】
+    Input Text    ${search_companyInputText_elementById}    ${keyword}
+    # sleep    10s
+
+search_order_company
+    [Arguments]    ${ele}    ${keyword}    # ${ele}断言信息的元素、搜索关键字
+    log    点击排序
+    wait_click_element    ${search_companyOrder_elementById}    20s
+    ${length}=    get_list_length    ${search_orders_elementById}    3s    #获取多个元素的长度
+    : FOR    ${index}    IN RANGE    ${length}    #进行循环遍历元素操作
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${search_orders_elementById}    ${index}    5s    #获取第几个元素
+    # \    ${get_ele_text}=    return_get_text    ${get_ele}
+    # \    log    【${get_ele_text}】
+    \    click_element    ${get_ele}    #点击获取到的元素
+    \    Capture Page Screenshot
+    \    get_pageShouldContain_text    ${ele}    ${keyword}    # 获取搜索信息是否包含关键字
+    \    log    点击排序
+    \    wait_click_element    ${search_companyOrder_elementById}    20s
+
+search_swipe_click_human_title
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    ${swipe}    # ${ele1}元素1、${ele_2}验证元素、${num}循环次数、${boolean}是否截图、${swipe}滑动方向
+    [Documentation]    搜索结果上下滑动中点击公司名字
+    run keyword if    '${swipe}'=='up'    swipe_up_statusTwo_should    ${ele_1}    ${ele_2}    ${num}    ${boolean}
+    ...    ELSE IF    '${swipe}'=='down'    swipe_down_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE    log    输入参数有误！
+
+search_swipe_click_company_title
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    ${swipe}    # ${ele1}元素1、${ele_2}验证元素、${num}循环次数、${boolean}是否截图、${swipe}滑动方向
+    [Documentation]    搜索结果上下滑动中点击公司名字
+    run keyword if    '${swipe}'=='up'    swipe_up_statusTwo_should    ${ele_1}    ${ele_2}    ${num}    ${boolean}
+    ...    ELSE IF    '${swipe}'=='down'    swipe_down_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE    log    输入参数有误！
+
+search_click_company_title
+    [Documentation]    搜索结果点击公司品牌、机构、私募
+    log    搜索结果点击公司品牌、机构、私募
+    ${length}=    get_list_length    ${search_companyTitle_elementById}    3s
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${search_companyTitle_elementById}    ${index}    5s
+    \    log    ${get_ele}
+    \    click_element    ${get_ele}
+    \    sleep    5s
+    \    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    \    get_elementShouldEnabled    ${companyPage_companyProjectName_elementById}    # 判断进入详情标题是否存在
+    \    Capture Page Screenshot    # ${TEST_NAME}-${index}.png
+    \    go back
+
+search_click_company
+    [Documentation]    搜索结果点击公司名称
+    log    搜索结果点击公司名称
+    ${length}=    get_list_length    ${search_companyName_elementById}    3s
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${search_companyName_elementById}    ${index}    5s
+    \    log    ${get_ele}
+    \    click_element    ${get_ele}
+    \    sleep    5s
+    \    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    \    get_elementShouldEnabled    ${companyPage_companyDetailName_elementById}    # 判断进入详情标题是否存在
+    \    Capture Page Screenshot    # ${TEST_NAME}-${index}.png
+    \    go back
+
+search_click_company_human
+    [Documentation]    搜索结果点击公司法人名字
+    log    搜索结果点击公司法人名字
+    ${length}=    get_list_length    ${search_companyEgalName_elementById}    3s
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${search_companyEgalName_elementById}    ${index}    5s
+    \    log    ${get_ele}
+    \    click_element    ${get_ele}
+    \    sleep    5s
+    \    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    \    vip_laver_close_back    # 关闭vip引导窗口
+    \    ${result}    return_keyword_status    ${humanPage_nameText_elementById}
+    \    run keyword if    '${result}'=='False'    log    无权限了，不能获取到人名
+    \    ...    ELSE    get_elementShouldEnabled    ${humanPage_nameText_elementById}
+    \    Capture Page Screenshot    # ${TEST_NAME}-${index}.png
+    \    go back
+
+search_company_human
+    [Documentation]    搜索公司结果，如果包含人名，点击进入人详情
+    ${result}    return_keyword_status    ${search_companyHumanResult_elementById}
+    run keyword if    '${result}'=='False'    log    搜索人的名字元素不存在
+    ...    ELSE    run keywords    log    点击搜索人的名字
+    ...    AND    wait_click_element    ${search_companyHumanResult_elementById}    10s
+    ...    AND    sleep    3s
+    ...    AND    log    进入人详情界面
+    ...    AND    wait_click_element    ${search_companyHumanResultBack_elementById}    10s
+    ...    AND    sleep    3s
+    ...    AND    log    返回搜索公司界面
+
+search_human
+    [Documentation]    搜索结果，如果包含人名，点击进入人详情
+    log    查老板，输入关键字【${keyword_human}】
+    wait_click_element    ${indexPage_searchHumanTab_elementById}    10s
+    wait_click_element    ${indexPage_searchEditText_elementById}    10s
+    input text    ${search_humanInputText_elementById}    ${keyword_human}
+    wait_click_element    ${search_humanText_elementById}    10s
+    page should contain element    ${search_humanPageTitle_elementById}
+
+search_company_del_keyword
+    [Arguments]    ${keyword}    # 搜索关键字
+    [Documentation]    输入关键字搜索公司
+    wait_click_element    ${indexPage_searchEditText_elementById}    5s
+    log    查公司，输入关键字【${keyword}】
+    Input Text    ${search_companyInputText_elementById}    ${keyword}
+    press Keycode    ${KEYCODE_FORWARD_DEL}
+    sleep    5s

@@ -1,0 +1,14 @@
+*** Settings ***
+Documentation     项目品牌涉及方法
+Library           AppiumLibrary
+Resource          android_element_resource.txt    # Android元素
+Resource          action_resource.txt
+
+*** Keywords ***
+click_ele_network
+    [Documentation]    判断元素是否存在，存在出现未加载成功页面，点击重新加载数据
+    [Arguments]    ${ele}    # ${ele}元素
+    ${result}    return_keyword_status    ${ele}
+    run keyword if    '${result}'=='False'    log    不需要重新加载页面！
+    ...    ELSE    run keywords    log    @@@@-需要重新加载页面-@@@@
+    ...    AND    wait_click_element    ${ele}    5s

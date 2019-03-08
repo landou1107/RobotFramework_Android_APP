@@ -1,0 +1,237 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          android_element_resource.txt
+Resource          action_resource.txt
+Resource          pay_resource.txt
+Resource          text_resource.txt
+Resource          check_resource.txt
+Resource          share_page_resource.txt
+
+*** Keywords ***
+vip_laver_close
+    [Documentation]    关闭vip引导窗口
+    ${result}    return_keyword_status    ${window_okBtn_elementById}
+    run keyword if    '${result}'=='True'    click_element    ${closeWindow_elementById}
+    ...    ELSE    log    享受免费查看
+
+vip_laver_close_back
+    [Documentation]    关闭vip引导窗口，并返回上一级
+    ${result}    return_keyword_status    ${window_okBtn_elementById}
+    run keyword if    '${result}'=='False'    log    享受免费查看
+    ...    ELSE    Run Keywords    click_element    ${closeWindow_elementById}
+    ...    AND    go_back
+
+vip_laver_openVipPage
+    [Documentation]    打开vip购买页面
+    ${result}    return_keyword_status    ${window_okBtn_elementById}
+    run_keyword_else_and    ${result}    ${window_okBtn_elementById}    ${window_okBtn_elementById}    进入vip购买页面
+
+vip_laver_toVipIntroducePage
+    [Documentation]    打开vip介绍页面
+    ${result}    return_keyword_status    ${window_okBtn_elementById}
+    run_keyword_else_and    ${result}    ${vipLaver_knowBtn_elementById}    ${vipIntroducePage_vipBtn_elementById}    进入vip介绍页面
+
+jump_openVip_window
+    [Arguments]    ${ele}    ${expected}    # ${ele}获取元素、${expected}预期值
+    [Documentation]    弹出购买vip窗口：
+    ...    1.选择购买会员年限
+    ...    2.输入优惠码
+    ...    3.选择支付的方式
+    log    【打开开通vip窗口】
+    get_elementTextShould_text    ${ele}    ${expected}    #获取title是否与预期一致
+    log    选择一年会员并进行相关支付验证
+    openVip_selectYear    ${vipOpen_priceType1_elementById}    ${right_code}    ${check_code_oneYear_price}    ${check_12_month}    ${check_oneYear_price}    ${wrong_code}
+    log    选择二年会员并进行相关支付验证
+    openVip_selectYear    ${vipOpen_priceType2_elementById}    ${right_code}    ${check_code_twoYear_price}    ${check_24_month}    ${check_twoYear_price}    ${wrong_code}
+    log    选择三年会员并进行相关支付验证
+    openVip_selectYear    ${vipOpen_priceType3_elementById}    ${right_code}    ${check_code_threeYear_price}    ${check_36_month}    ${check_threeYear_price}    ${wrong_code}
+
+open_vipPage
+    [Arguments]    ${ele}    ${expected}    # ${ele}获取元素、${expected}预期值
+    [Documentation]    弹出购买vip窗口，点击【查看全部VIP权益】:
+    ...    1.验证页面是否正确
+    ...    2.进行会员开通操作。进入页面进行不同选择的验证,并根据会员年数验证会员价格
+    ...    3.进行上下滚动页面操作
+    clear_input_text    ${getFriendVipPage_inputNum_elementById}    ${friend_num}    # 输入赠送好友号码
+    ${length}=    get_list_length    com.xxxx.xxxx:id/become_vip_tv_price    3s    #获取多个元素的长度
+    : FOR    ${index}    IN RANGE    ${length}    #进行循环遍历元素操作
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    com.xxxx.xxxx:id/become_vip_tv_price    ${index}    5s    #获取第几个元素
+    \    click_element    ${get_ele}    #点击获取到的元素
+    \    Run Keyword IF    ${index}==0    become_vipPage2    com.xxxx.xxxx:id/tv_bottom_price    ¥720    ${index}
+    \    ...    ELSE IF    ${index}==1    become_vipPage2    com.xxxx.xxxx:id/tv_bottom_price    ¥720
+    \    ...    ${index}
+    \    ...    ELSE IF    ${index}==2    become_vipPage2    com.xxxx.xxxx:id/tv_bottom_price    ¥360
+    \    ...    ${index}
+    \    Capture Page Screenshot
+
+open_vipPage_toBecome_vipPage
+    [Documentation]    弹出购买vip窗口：
+    ...    1.点击【查看全部VIP权益】，验证页面是否正确；
+    ...    2.进入VIP会员页，点击【开通】按钮，选择不同价格；
+    ...    3.获取分享二维码操作；
+    ...    4.进入成为VIP页，选择不同选择的支付方式，并验证支付价格；
+    # [Arguments]    ${ele}    ${expected}    # ${ele}获取元素、${expected}预期值
+    log    弹出购买vip窗口，点击【查看全部VIP权益】，跳转新页面相关操作:
+    wait_click_element    ${vipOpen_middleTitle_elementById}    10s    # 跳转到VIP会员页面
+    get_elementTextShould_text    ${vipPage_title_elementById}    ${check_vipPage_title}    #获取title是否与预期一致
+    ${length}=    get_list_length    ${vipPage_openVip_elementByXpath}    3s    #获取多个元素的长度
+    : FOR    ${index}    IN RANGE    ${length}    #进行循环遍历元素操作
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${vipPage_openVip_elementByXpath}    ${index}    5s    #获取【开通】按钮（获取第几个元素）
+    \    click_element    ${get_ele}    #点击获取到的元素
+    \    Run Keyword IF    ${index}==0    become_vipPage    ${becomeVipPage_year_elementById}    3年VIP会员    ${index}
+    \    ...    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_36_month}    ${check_wechatTitlePage}
+    \    ...    ${friend_vipPage_check_code_threeYear_price}
+    \    ...    ELSE IF    ${index}==1    become_vipPage    ${becomeVipPage_year_elementById}    2年VIP会员
+    \    ...    ${index}    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_24_month}
+    \    ...    ${check_wechatTitlePage}    ${friend_vipPage_check_code_twoYear_price}
+    \    ...    ELSE IF    ${index}==2    become_vipPage    ${becomeVipPage_year_elementById}    1年VIP会员
+    \    ...    ${index}    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_12_month}
+    \    ...    ${check_wechatTitlePage}    ${friend_vipPage_check_code_oneYear_price}
+    \    log    返回上级页面【查看全部VIP权益】
+    \    go_back    # 返回上级页面【查看全部VIP权益】
+    \    Capture Page Screenshot
+
+open_vipPage_toBecome_vipPage_1
+    [Documentation]    弹出购买vip窗口：
+    ...    1.点击【查看全部VIP权益】，验证页面是否正确；
+    ...    2.进入VIP会员页，点击【开通】按钮，选择不同价格；
+    ...    3.获取分享二维码操作；
+    ...    4.进入成为VIP页，选择不同选择的支付方式，并验证支付价格；
+    # [Arguments]    ${ele}    ${expected}    # ${ele}获取元素、${expected}预期值
+    log    弹出购买vip窗口，点击【查看全部VIP权益】，跳转新页面相关操作:
+    wait_click_element    ${vipOpen_middleTitle_elementById}    10s    # 跳转到VIP会员页面
+    get_elementTextShould_text    ${vipPage_title_elementById}    ${check_vipPage_title}    #获取title是否与预期一致
+    ${length}=    get_list_length    ${vipPage_openVip_elementByXpath}    3s    #获取多个元素的长度
+    : FOR    ${index}    IN RANGE    ${length}    #进行循环遍历元素操作
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${vipPage_openVip_elementByXpath}    ${index}    5s    #获取【开通】按钮（获取第几个元素）
+    \    click_element    ${get_ele}    #点击获取到的元素
+    \    # share_tyc_to_wechat    ${becomeVipPage_title_elementById}    ${check_becomeVipPage_title}    第${index}次，从【成为VIP】页，分享【扫码关注xxxx公众号获取优惠码】    # 获取优惠码相关操作
+    \    Run Keyword IF    ${index}==0    become_vipPage    ${becomeVipPage_year_elementById}    3年VIP会员    ${index}
+    \    ...    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_36_month}    ${check_wechatTitlePage}
+    # \    ...    ${check_threeYear_price}
+    \    ...    ${friend_vipPage_check_code_threeYear_price}
+    \    ...    ELSE IF    ${index}==1    become_vipPage    ${becomeVipPage_year_elementById}    2年VIP会员
+    \    ...    ${index}    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_24_month}
+    # \    ...    ${check_wechatTitlePage}    ${check_twoYear_price}
+    \    ...    ${check_wechatTitlePage}    ${friend_vipPage_check_code_twoYear_price}
+    \    ...    ELSE IF    ${index}==2    become_vipPage    ${becomeVipPage_year_elementById}    1年VIP会员
+    \    ...    ${index}    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_12_month}
+    # \    ...    ${check_wechatTitlePage}    ${check_oneYear_price}
+    \    ...    ${check_wechatTitlePage}    ${friend_vipPage_check_code_oneYear_price}
+    \    log    返回上级页面【查看全部VIP权益】
+    \    go_back    # 返回上级页面【查看全部VIP权益】
+    \    Capture Page Screenshot
+
+become_vipPage
+    [Arguments]    ${ele}    ${expected}    ${index}    ${select_wechatpay_element}    ${goPay_element}    ${log_message}
+    ...    ${expected_month}    ${wechat_message}    ${wechat_price}    # ${ele}获取元素、${expected}预期值、${index}选择会员年
+    [Documentation]    点击【开通】，跳转成为VIP页面相关操作:
+    ...    1.验证页面是否正确
+    ...    2.进行不同支付和正确邀请码操作，并提交订单，验证月份和价格
+    log    点击【开通】入口，跳转成为VIP页面相关操作:
+    get_elementTextShould_text    ${ele}    ${expected}    #获取title是否与预期一致    # Run Keyword IF    ${index}==0    code_pay
+    select_alipay    ${vipOpen_alipay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_ali_message}    # 选择支付宝支付
+    Run Keyword IF    ${index}==0    select_webchatpay    ${select_wechatpay_element}    ${goPay_element}    ${log_message}    ${expected_month}
+    ...    ${wechat_message}    ${wechat_price}
+    ...    ELSE IF    ${index}==1    select_webchatpay    ${select_wechatpay_element}    ${goPay_element}    ${log_message}
+    ...    ${expected_month}    ${wechat_message}    ${wechat_price}
+    ...    ELSE IF    ${index}==2    select_webchatpay    ${select_wechatpay_element}    ${goPay_element}    ${log_message}
+    ...    ${expected_month}    ${wechat_message}    ${wechat_price}
+
+get_friend_vipPage
+    [Documentation]    赠送好友VIP页面相关操作:
+    ...    1.清空赠送好友号码之后，再进行输入新号码；
+    ...    2.获取优惠码，分享好友微信，保存二维码；
+    ...    3.点击通讯录并验证进入页面是否正确；
+    ...    4.点击VIP特权，跳转到特权页验证
+    ...    5.选择不同年限的会员，同时选择微信和支付宝支付的方式
+    ...    6.输入正确的优惠码，同时选择微信和支付宝的方式
+    ...    7.输入错误的优惠码，同时选择微信和支付宝的方式
+    ...    8.
+    # [Arguments]    ${ele}    ${expected}    # ${ele}获取元素、${expected}预期值
+    clear_input_text    ${getFriendVipPage_inputNum_elementById}    ${friend_num}    # 输入赠送好友号码
+    share_tyc_to_wechat    ${getFriendVipPage_title_elementById}    ${check_getFriendVipPage_title}    从【赠送好友页】分享【扫码关注xxxx公众号获取优惠码】
+    click_new_page_should    ${getFriendVipPage_linkMan_elementById}    点击【通讯录】入口    ${contactsPage_noPerson_elementByXpath}    ${check_contactsPage}
+    go_back
+    click_new_page_should    ${getFriendVipPage_privilege_elementById}    点击【VIP特权按钮】入口    ${vipPage_title_elementById}    ${check_vipPage_title}    # 返回赠送好友页面，并验证title
+    log    返回赠送好友页面，并验证title
+    go_back
+    ${length}=    get_list_length    ${becomeVipPage_vip_price_elementById}    3s    #获取多个元素的长度
+    : FOR    ${index}    IN RANGE    ${length}    #进行循环遍历元素操作
+    \    log    ${index}
+    \    log    【输入正确的邀请码】
+    \    # \    select_right_code_pay    ${index}    # 输入正确优惠码
+    \    ${get_ele}=    get_index_elements    ${becomeVipPage_vip_price_elementById}    ${index}    5s    #获取第几个元素
+    \    click_element    ${get_ele}    #点击获取到的元素
+    \    Run Keyword IF    ${index}==0    become_vipPage    ${becomeVipPage_vip_finalPrice_elementById}    ¥720    ${index}
+    \    ...    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_three_year}    ${check_wechatGetFriendTitlePage}
+    \    ...    ${check_threeYear_price}
+    \    ...    ELSE IF    ${index}==1    become_vipPage    ${becomeVipPage_vip_finalPrice_elementById}    ¥720
+    \    ...    ${index}    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_two_year}
+    \    ...    ${check_wechatGetFriendTitlePage}    ${check_twoYear_price}
+    \    ...    ELSE IF    ${index}==2    become_vipPage    ${becomeVipPage_vip_finalPrice_elementById}    ¥360
+    \    ...    ${index}    ${vipOpen_wechatpay_elementById}    ${becomeVipPage_goPay_elementById}    ${pay_wechat_messge}    ${check_one_year}
+    \    ...    ${check_wechatGetFriendTitlePage}    ${check_oneYear_price}
+    \    Capture Page Screenshot
+
+openVip_selectYear
+    [Arguments]    ${select_price_type}    ${right_code}    ${code_price}    ${expected_month}    ${nocode_price}    ${wrong_code}
+    ...    # | ${select_price_type}选择年限、${right_code}正确邀请码、${code_price}优惠后价格、${expected_month}预期月份、${nocode_price}无邀请码、${wrong_code}错误邀请码
+    [Documentation]    弹出购买vip窗口，选择购买vip年限，使用正确和错误的邀请码，使用不同的支付方式
+    wait_click_element    ${select_price_type}    10s    #选择vip年限
+    code_pay    ${vipOpen_code_elementById}    ${right_code}    ${code_price}    ${vipOpen_finalPrice_elementById}    #输入正确邀请码
+    select_alipay    ${vipOpen_alipay_elementById}    ${vipOpen_goPay_elementById}    ${pay_ali_message}
+    select_webchatpay    ${vipOpen_wechatpay_elementById}    ${vipOpen_goPay_elementById}    ${pay_wechat_messge}    ${expected_month}    ${check_wechatTitlePage}    ${code_price}
+    clear_code_pay    ${vipOpen_code_elementById}    ${nocode_price}    ${vipOpen_finalPrice_elementById}    #清空邀请码
+    select_alipay    ${vipOpen_alipay_elementById}    ${vipOpen_goPay_elementById}    ${pay_ali_message}
+    select_webchatpay    ${vipOpen_wechatpay_elementById}    ${vipOpen_goPay_elementById}    ${pay_wechat_messge}    ${expected_month}    ${check_wechatTitlePage}    ${nocode_price}
+    code_pay    ${vipOpen_code_elementById}    ${wrong_code}    ${nocode_price}    ${vipOpen_finalPrice_elementById}    #输入错误邀请码
+    select_alipay    ${vipOpen_alipay_elementById}    ${vipOpen_goPay_elementById}    ${pay_ali_message}
+    select_webchatpay    ${vipOpen_wechatpay_elementById}    ${vipOpen_goPay_elementById}    ${pay_wechat_messge}    ${expected_month}    ${check_wechatTitlePage}    ${nocode_price}
+
+select_right_code_pay
+    [Arguments]    ${index}    # $ {index}选择会员年、${code_elementById}邀请码输入元素、${code}邀请码、${code_price}邀请码后价格、${finalPrice_elementById}最终价格的元素
+    [Documentation]    点击【开通】，跳转成为VIP页面相关操作:
+    ...    1.输入验正确优惠码
+    ...    2.进行不同支付和正确邀请码操作，并提交订单，验证月份和价格
+    # [Arguments]    ${index}    ${code_elementById}    ${code}    ${code_price}    ${finalPrice_elementById}    # $ {index}选择会员年、${code_elementById}邀请码输入元素、${code}邀请码、${code_price}邀请码后价格、${finalPrice_elementById}最终价格的元素
+    Run Keyword IF    ${index}==0    code_pay    ${getFriendVipPage_code_elementById}    ${right_code}    ${friend_vipPage_check_threeYear_price}    ${becomeVipPage_vip_finalPrice_elementById}
+    ...    ELSE IF    ${index}==1    code_pay    ${getFriendVipPage_code_elementById}    ${right_code}    ${friend_vipPage_check_code_twoYear_price}
+    ...    ${becomeVipPage_vip_finalPrice_elementById}
+    ...    ELSE IF    ${index}==2    code_pay    ${getFriendVipPage_code_elementById}    ${right_code}    ${friend_vipPage_check_code_oneYear_price}
+    ...    ${becomeVipPage_vip_finalPrice_elementById}    #输入正确邀请码    #输入正确邀请码    #输入正确邀请码
+
+code_pay2
+    [Arguments]    ${code_elementById}    ${code}    ${code_price}    ${finalPrice_elementById}    # ${code_elementById}邀请码输入元素、${code}邀请码、${code_price}邀请码后价格、${finalPrice_elementById}最终价格的元素
+    [Documentation]    1.清空优惠码
+    ...    2.使用正确的邀请码
+    ...    3.选择会员年限，优惠码后，价格与预期是否一致
+    log    先【清空优惠码】
+    clear_text    ${code_elementById}    #清空优惠码
+    log    输入优惠码【${code}】
+    input_text    ${code_elementById}    ${code}    #输入正确优惠码
+    log    【选择支付会员年限后，验证价格是否正确】
+    get_elementTextShould_text    ${finalPrice_elementById}    ${code_price}    #选择会员年限，优惠码后，价格与预期是否一致
+
+code_pay
+    [Arguments]    ${code_elementById}    ${code}    ${code_price}    ${finalPrice_elementById}    # ${code_elementById}邀请码输入元素、${code}邀请码、${code_price}邀请码后价格、${finalPrice_elementById}最终价格的元素
+    [Documentation]    1.清空优惠码
+    ...    2.使用正确的邀请码
+    ...    3.选择会员年限，优惠码后，价格与预期是否一致
+    log    先【清空优惠码】
+    clear_text    ${code_elementById}    #清空优惠码
+    log    输入优惠码【${code}】
+    input_text    ${code_elementById}    ${code}    #输入正确优惠码
+    log    【选择支付会员年限后，验证价格是否正确】
+    get_elementTextShould_text    ${finalPrice_elementById}    ￥${code_price}    #选择会员年限，优惠码后，价格与预期是否一致
+
+clear_code_pay
+    [Arguments]    ${code_elementById}    ${code_price}    ${finalPrice_elementById}    # ${code_elementById}邀请码输入元素、${code_price}邀请码后价格、${finalPrice_elementById}最终价格的元素
+    [Documentation]    清空邀请码操作
+    log    【清空优惠码】
+    clear_text    ${code_elementById}    #清空优惠码
+    log    【选择支付会员年限后，验证价格是否正确】
+    get_elementTextShould_text    ${finalPrice_elementById}    ￥${code_price}    #选择会员年限，优惠码后，价格与预期是否一致

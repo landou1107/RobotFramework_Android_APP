@@ -1,0 +1,8 @@
+*** Settings ***
+Documentation     首页页面资源
+Resource          android_element_resource.txt
+Library           AppiumLibrary
+
+*** Keywords ***
+click_export
+    click_element    ${indexPage_categorySearch_elementById}    #点击首页右上角的入口

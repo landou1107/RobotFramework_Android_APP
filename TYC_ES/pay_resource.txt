@@ -1,0 +1,31 @@
+*** Settings ***
+Documentation     不同支付方式
+Library           AppiumLibrary
+Resource          android_element_resource.txt
+Resource          action_resource.txt
+Resource          text_resource.txt
+Resource          share_page_resource.txt
+
+*** Keywords ***
+select_alipay
+    [Arguments]    ${select_alipay_element}    ${goPay_element}    ${message}
+    [Documentation]    选择支付宝支付，并验证跳转页面后，返回上一级页面
+    log    选择支付宝进行支付
+    wait_click_element    ${select_alipay_element}    10s    #选择支付宝
+    wait_click_element    ${goPay_element}    10s    #点击去支付
+    log    ${message}    #拉起支付宝登录页面
+    get_elementTextShould_text    ${AlipayPage_faceLoginButton_elementById}    刷脸登录    #支付宝登录，与预期是否一致
+    Capture Page Screenshot
+    go_back
+
+select_webchatpay
+    [Arguments]    ${select_wechatpay_element}    ${goPay_element}    ${log_message}    ${expected_month}    ${wechat_message}    ${wechat_price}
+    [Documentation]    选择微信支付，并验证跳转页面后，返回上一级页面
+    log    选择微信进行支付，会员期限【${expected_month}】，支付价格【${wechat_price}】元
+    wait_click_element    ${select_wechatpay_element}    10s    #选择微信
+    wait_click_element    ${goPay_element}    10s    #点击去支付
+    log    ${log_message}    #拉起微信支付页面
+    get_elementTextShould_text    ${WechatpayPage_topTitle_elementByXpath}    ${wechat_message}—${expected_month}    #微信支付页会员购买年限，与预期是否一致
+    get_elementTextShould_text    ${wechatpayPage_finalPrice_elementById}    ${wechat_price}.00    #微信支付页会员购买金额，与预期是否一致
+    Capture Page Screenshot
+    go_back

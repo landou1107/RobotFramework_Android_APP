@@ -1,0 +1,27 @@
+*** Settings ***
+Documentation     配置启动app相关参数    # ${APP_ACTIVITY} \ \ \ com.xxxx.xxxx.MainActivity \ \ \ # 要从应用包中启动的 Android Activity 名称
+Library           AppiumLibrary
+Resource          check_resource.txt    # 校验关键字资源
+Resource          android_element_resource.txt    # app元素
+Resource          action_resource.txt    # 行为操作资源
+
+*** Variables ***
+# ${random}=      random
+# ${APPIUM_SERVER1}    http://127.0.0.1:${random}/wd/hub
+# ${APPIUM_SERVER2}    http://127.0.0.1:${random}/wd/hub
+# ${udid_device1}    udid of device 1
+# ${udid_device2}    udid of device 2
+${REMOTE_URL}     http://localhost:4723/wd/hub
+# ${REMOTE_URL}    http://localhost:${random}/wd/hub
+${APP}            /Users/xxxxx/Work/RobotframeworkProject/robotframework_tyc_9.2.1/demoapp/xxxx_beta_v9.2.1.apk
+#${AUTOMATION_NAME}    appium    # 自动化测试引擎
+${PLATFORM_NAME}    Android    # 手机操作系统
+${PLATFORM_VERSION}    6.0    # 手机操作系统版本
+${DEVICE_NAME}    小米手机    # 手机类型或模拟器类型
+${APP_PACKAGE}    com.xxxx.xxxx    # Android应用的包名
+${UNICODE_KEYBOARD}    true    # 是否在测试过程中切换到能支持多国语言输入的输入法
+${RESET_KEYBOARD}    true    # 是否在测试完成后自动切换回原有输入法
+${UDID}           ZTEBV0730    # 设备号 LE67A06310133286 AKC0218418000582 W8R0215A16001204
+${APP_ACTIVITY}    .activity.SplashActivity    # v8.3.1之前启动使用.SplashPage 使用adb shell 查看monkey -p com.xxxx.xxxx -vvv 1 .activity.SplashActivity
+${PORT}           4723    # 监听的端口
+${BOOTSTRAP_PORT}    4724    # (Android-only) 连接设备的端口号

@@ -1,0 +1,719 @@
+*** Settings ***
+Library           AppiumLibrary
+Library           Custom
+Resource          android_element_resource.txt
+
+*** Keywords ***
+return_iphone_Y_height
+    [Documentation]    获取y坐标
+    ${height}    Get Window Height
+    log    ${height}
+    [Return]    ${height}
+
+return_iphone_X_width
+    [Documentation]    获取x坐标
+    ${width}    Get Window Width
+    log    ${width}
+    [Return]    ${width}
+
+return_iphone_up_start_y
+    [Documentation]    获取当前手机向上滑动开始y的坐标
+    ${height}=    return_iphone_Y_height
+    ${start_y}    evaluate    ${height}*9/10
+    [Return]    ${start_y}
+
+return_iphone_up_end_y
+    [Documentation]    获取当前手机向上滑动结束y的坐标
+    ${height}=    return_iphone_Y_height
+    ${end_y}    evaluate    ${height}/10
+    [Return]    ${end_y}
+
+return_iphone_down_start_y
+    [Documentation]    获取当前手机向下滑动开始y的坐标
+    ${height}=    return_iphone_Y_height
+    ${start_y}    evaluate    ${height}/4
+    [Return]    ${start_y}
+
+return_iphone_down_end_y
+    [Documentation]    获取当前手机向下滑动结束y的坐标
+    ${height}=    return_iphone_Y_height
+    ${end_y}    evaluate    ${height}*3/4
+    [Return]    ${end_y}
+
+return_iphone_up_down_start_x
+    [Documentation]    获取当前手机向上下滑动开始x的坐标
+    ${width}=    return_iphone_X_width
+    ${start_x}    evaluate    ${width}/2
+    [Return]    ${start_x}
+
+return_iphone_left_start_x
+    [Documentation]    获取当前手机向左滑动开始x的坐标
+    ${width}=    return_iphone_X_width
+    ${start_x}    evaluate    ${width}*9/10
+    [Return]    ${start_x}
+
+return_iphone_left_end_x
+    [Documentation]    获取当前手机向左滑动结束x的坐标
+    ${width}=    return_iphone_X_width
+    ${end_x}    evaluate    ${width}/10
+    [Return]    ${end_x}
+
+return_iphone_right_start_x
+    [Documentation]    获取当前手机向右滑动开始x的坐标
+    ${width}=    return_iphone_X_width
+    ${start_x}    evaluate    ${width}/10
+    [Return]    ${start_x}
+
+return_iphone_right_end_x
+    [Documentation]    获取当前手机向右滑动结束x的坐标
+    ${width}=    return_iphone_X_width
+    ${end_x}    evaluate    ${width}*9/10
+    [Return]    ${end_x}
+
+return_iphone_left_right_start_end_y
+    [Documentation]    获取当前手机向左右滑动开始和结束y的坐标
+    ${height}=    return_iphone_Y_height
+    ${start_y}    evaluate    ${height}/2
+    [Return]    ${start_y}
+
+swipe_up
+    [Documentation]    获取当前手机分辨率后，进行向上滑动操作
+    ${start_y}    return_iphone_up_start_y
+    log    ${start_y}
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_up_end_y
+    log    ${end_y}
+    ${end_x}    return_iphone_up_down_start_x
+    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    2000
+    Capture Page Screenshot    # 向上滑动截图.png
+
+swipe_up_num
+    [Arguments]    ${num}    # ${num}循环次数
+    [Documentation]    获取当前手机分辨率后，进行向上滑动操作，找到指定元素后停止
+    ${start_y}    return_iphone_up_start_y
+    log    ${start_y}
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_up_end_y
+    log    ${end_y}
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    2000
+    \    log    第${index}次向上滑动
+    \    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+swipe_up_ele
+    [Arguments]    ${ele}    ${num}    ${boolean}    # ${ele}元素、${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向上滑动操作，找到指定元素后停止
+    ${start_y}    return_iphone_up_start_y
+    log    ${start_y}
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_up_end_y
+    log    ${end_y}
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    2000
+    \    log    第${index}次向上滑动
+    \    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+    \    ${count}    Get Matching Xpath Count    xpath=${ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_down_ele
+    [Arguments]    ${ele}    ${num}    ${boolean}    # ${ele}元素、${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向下滑动操作，找到指定元素后停止
+    ${start_y}    return_iphone_down_start_y
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_down_end_y
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向下滑动
+    \    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+    \    ${count}    Get Matching Xpath Count    xpath=${ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_left_ele
+    [Arguments]    ${ele}    ${num}    # ${ele}元素、${num}循环次数
+    [Documentation]    获取当前手机分辨率后，进行向左滑动操作，找到指定元素后停止
+    ${start_x}    return_iphone_left_start_x
+    ${start_y}    return_iphone_left_right_start_end_y
+    ${end_x}    return_iphone_left_end_x
+    ${end_y}    return_iphone_left_right_start_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向左滑动
+    \    ${count}    Get Matching Xpath Count    xpath=${ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_right_ele
+    [Arguments]    ${ele}    ${num}    # ${ele}元素、${num}循环次数
+    [Documentation]    获取当前手机分辨率后，进行向右滑动操作，找到指定元素后停止
+    ${start_x}    return_iphone_right_start_x
+    ${start_y}    return_iphone_left_right_start_end_y
+    ${end_x}    return_iphone_right_end_x
+    ${end_y}    return_iphone_left_right_start_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向右滑动
+    \    ${count}    Get Matching Xpath Count    xpath=${ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_up_from_to_input_ele
+    [Arguments]    ${from_ele}    ${to_ele}    ${ele_Xpath}    ${num}    ${boolean}    # ${from_ele}开始元素、${to_ele}目标元素、${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向上滑动操作，开始元素位置到目标元素位置
+    ${from_location}    get_ele_location    ${from_ele}    # 通过坐标获取位置
+    ${start_y}=    get_key_dictionary    ${from_location}    y    # 通过字典获取元素坐标获取位置
+    ${to_location}    get_ele_location    ${to_ele}    # 通过坐标获取位置
+    ${end_y}=    get_key_dictionary    ${to_location}    y    # 通过字典获取元素坐标获取位置
+    ${start_x}=    return_iphone_up_down_start_x
+    ${end_x}=    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    2000
+    \    log    第${index}次向上滑动
+    \    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+    \    ${count}    Get Matching Xpath Count    xpath=${ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_up_statusTwo
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向上滑动操作
+    ${start_y}    return_iphone_up_start_y
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_up_end_y
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向上滑动
+    \    return_keyword_statusTwo_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+swipe_down_statusTwo
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向下滑动操作
+    ${start_y}    return_iphone_down_start_y
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_down_end_y
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向下滑动
+    \    return_keyword_statusTwo_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+swipe_left_input_ele
+    [Arguments]    ${location_ele}    ${num}    # ${ele}元素、${num}循环次数
+    [Documentation]    获取当前手机分辨率后，通过元素定位xy坐标后，输入滑动的次数后，进行向左滑动操作
+    ${location}    get_ele_location    ${location_ele}    # 通过坐标获取位置
+    ${start_end_y}=    get_key_dictionary    ${location}    y    # 通过字典获取元素坐标获取位置
+    ${start_x}=    return_iphone_left_start_x    #972
+    ${end_x}=    return_iphone_left_end_x    #108
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_end_y}    ${end_x}    ${start_end_y}    1000
+    \    log    第${index}次向左滑动
+    \    Capture Page Screenshot    # 第${index}次向左滑动.png
+
+swipe_up_input_ele
+    [Arguments]    ${location_ele}    ${num}    ${xpath_ele}    # ${location_ele}元素、${num}循环次数、${xpath_ele}查找元素
+    [Documentation]    获取当前手机分辨率后，通过元素定位xy坐标后，输入滑动的次数后，进行向上滑动操作
+    ${location}    get_ele_location    ${location_ele}    # 通过坐标获取位置
+    ${start_end_x}=    get_key_dictionary    ${location}    x    # 通过字典获取元素坐标获取位置
+    ${start_y}=    return_iphone_up_start_y
+    ${end_y}=    return_iphone_up_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_end_x}    ${start_y}    ${start_end_x}    ${end_y}    2000
+    \    log    第${index}次向上滑动
+    \    Capture Page Screenshot    # 第${index}次向上滑动.png
+    \    ${count}    Get Matching Xpath Count    xpath=${xpath_ele}
+    \    log    发现元素${xpath_ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_up_xy_ele
+    [Arguments]    ${num}    ${xpath_ele}    # ${location_ele}元素、${num}循环次数、${xpath_ele}查找元素
+    [Documentation]    通过元素定位xy坐标后，输入滑动的次数后，进行向上滑动操作
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    291    1729    291    500    1000
+    \    log    第${index}次向上滑动
+    \    Capture Page Screenshot    # 第${index}次向上滑动.png
+    \    ${count}    Get Matching Xpath Count    xpath=${xpath_ele}
+    \    log    发现元素${xpath_ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_down_xy_ele
+    [Arguments]    ${num}    ${xpath_ele}    # ${location_ele}元素、${num}循环次数、${xpath_ele}查找元素
+    [Documentation]    通过元素定位xy坐标后，输入滑动的次数后，进行向下滑动操作
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    291    600    291    1729    1000
+    \    log    第${index}次向上滑动
+    \    Capture Page Screenshot    # 第${index}次向上滑动.png
+    \    ${count}    Get Matching Xpath Count    xpath=${xpath_ele}
+    \    log    发现元素${xpath_ele}
+    \    Exit For Loop If    ${count}>0
+
+swipe_left_input
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    ${start_x}    ${start_y}
+    ...    ${end_x}    ${end_y}    # ${num}循环次数、${boolean}是否截图、${x}输入x坐标、${y}输入y坐标
+    [Documentation]    如果输入x或y坐标值，进行向左滑动操作    # run keyword if    '${height}'=='0'    log    获取当前手机分辨率【Y】    # ...    # ELSE    ${height}    Get Window Height    # ...    # AND    log    ${height}    # run keyword if    '${width}'=='0'    log    获取当前手机分辨率【X】    # ...    # ELSE    ${width}    Get Window Width    # ...    # AND    log    ${width}
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向左滑动
+    \    return_keyword_statusOne_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+swipe_right_statusTwo_should
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向右滑动操作
+    ${start_x}    return_iphone_right_start_x
+    ${start_y}    return_iphone_left_right_start_end_y
+    ${end_x}    return_iphone_right_end_x
+    ${end_y}    return_iphone_left_right_start_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向右滑动
+    \    return_keyword_statusOne_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+swipe_left
+    [Arguments]    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向左滑动操作
+    ${start_x}    return_iphone_left_start_x
+    ${start_y}    return_iphone_left_right_start_end_y
+    ${end_x}    return_iphone_left_end_x
+    ${end_y}    return_iphone_left_right_start_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向左滑动
+    \    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+swipe_right
+    [Arguments]    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向右滑动操作
+    ${start_x}    return_iphone_right_start_x
+    ${start_y}    return_iphone_left_right_start_end_y
+    ${end_x}    return_iphone_right_end_x
+    ${end_y}    return_iphone_left_right_start_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向右滑动
+    \    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+swipe_up_statusTwo_should
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向上滑动操作
+    ${start_y}    return_iphone_up_start_y
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_up_end_y
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向上滑动
+    \    return_keyword_statusOne_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+swipe_down_statusTwo_should
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向下滑动操作
+    ${start_y}    return_iphone_down_start_y
+    ${start_x}    return_iphone_up_down_start_x
+    ${end_y}    return_iphone_down_end_y
+    ${end_x}    return_iphone_up_down_start_x
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向下滑动
+    \    return_keyword_statusOne_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+swipe_left_statusTwo_should
+    [Arguments]    ${ele_1}    ${ele_2}    ${num}    ${boolean}    # ${num}循环次数、${boolean}是否截图
+    [Documentation]    获取当前手机分辨率后，进行向下滑动操作
+    ${start_x}    return_iphone_left_start_x
+    ${start_y}    return_iphone_left_right_start_end_y
+    ${end_x}    return_iphone_left_end_x
+    ${end_y}    return_iphone_left_right_start_end_y
+    : FOR    ${index}    IN RANGE    ${num}
+    \    Swipe    ${start_x}    ${start_y}    ${end_x}    ${end_y}    1000
+    \    log    第${index}次向左滑动
+    \    return_keyword_statusOne_scren    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+
+if_swipe_count
+    [Arguments]    ${num}    ${boolean}    ${swipe}    # ${num}循环次数、${boolean}是否截图、${swipe}滑动方向
+    [Documentation]    判断滑动操作，并点击里面的元素
+    run keyword if    '${swipe}'=='up'    swipe_up_statusTwo_should    ${ele_1}    ${ele_2}    ${num}    ${boolean}
+    ...    ELSE IF    '${swipe}'=='down'    swipe_down_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE IF    '${swipe}'=='left'    swipe_left_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE IF    '${swipe}'=='right'    swipe_right_statusTwo_should    ${ele_1}    ${ele_2}    ${num}
+    ...    ${boolean}
+    ...    ELSE    log    输入参数有误!
+
+wait_click_element
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    等待元素出现后，再进行操作
+    wait_element    ${ele}    ${wait_time}
+    click_element    ${ele}
+
+wait_element
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    等待元素
+    Wait Until Page Contains Element    ${ele}    ${wait_time}
+
+click_list_elements
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    等待元素出现后，进行遍历list的元素并点击元素
+    wait_element    ${ele}    ${wait_time}
+    @{get_all_eles}    Get Webelements    ${ele}
+    Log Many    @{get_all_eles}
+    @{eles_list}=    Create List    ${get_all_eles}
+    ${list_length}=    Get Length    @{eles_list}
+    Log    'List Size is : ' ${list_length}
+    : FOR    ${num}    IN RANGE    ${list_length}
+    \    log    'Num is : ' ${num}
+    # \    return_get_text    ${get_all_eles[${num}]}
+    \    click element    ${get_all_eles[${num}]}
+    \    Capture Page Screenshot
+
+click_id_list_elements
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    等待id元素出现后，进行遍历list的元素并点击元素
+    wait_element    ${ele}    ${wait_time}
+    @{get_all_eles}    Get Webelements    id=${ele}
+    Log Many    @{get_all_eles}
+    @{eles_list}=    Create List    ${get_all_eles}
+    ${list_length}=    Get Length    @{eles_list}
+    Log    'List Size is : ' ${list_length}
+    : FOR    ${num}    IN RANGE    ${list_length}
+    \    log    'Num is : ' ${num}
+    \    click element    ${get_all_eles[${num}]}
+    \    Capture Page Screenshot
+
+get_index_elements
+    [Arguments]    ${ele}    ${index}    ${wait_time}    # ${ele}元素、${index}、 ${wait_time}等待时间
+    [Documentation]    等待元素出现后，通过index返回元素
+    wait_element    ${ele}    ${wait_time}
+    ${get_all_eles}    Get Webelements    ${ele}
+    log    '@@@ele is : ' ${get_all_eles[${index}]}
+    [Return]    ${get_all_eles[${index}]}    # 通过index返回元素
+
+get_list_length
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    等待元素出现后，获取list的长度
+    wait_element    ${ele}    ${wait_time}
+    @{get_all_eles}    Get Webelements    ${ele}
+    Log Many    @{get_all_eles}
+    @{eles_list}=    Create List    ${get_all_eles}
+    ${list_length}=    Get Length    @{eles_list}
+    # Log    'List Size is : ' ${list_length}
+    [Return]    ${list_length}    # 返回list的长度
+
+return_keyword_status
+    [Arguments]    ${ele}
+    [Documentation]    运行关键字返回页面是否存在该元素的状态
+    ${status}    Run Keyword And Return Status    wait until page contains element    ${ele}    10s
+    # log    ${status}
+    [Return]    ${status}
+
+if_uninstall_install_app_back_up
+    [Arguments]    ${APP}    ${APP_PACKAGE}    # 路径和包名
+    [Documentation]    判断是否存在，存在的话删除，安装新包
+    uninstall_app    ${APP_PACKAGE}
+    Adb_Install_Package    ${APP}    ${APP_PACKAGE}
+
+if_uninstall_install_app
+    [Arguments]    ${UDID}    ${APP}    ${APP_PACKAGE}    # 路径和包名
+    [Documentation]    判断是否存在，存在的话删除，安装新包
+    ${status}    Is Package Installed    ${UDID}    ${APP_PACKAGE}
+    Run_Keyword_If    '${status}'=='True'    Adb_Uninstall_Package    ${UDID}    ${APP_PACKAGE}
+    ...    ELSE    run keywords    Adb_Install_Package    ${UDID}    ${APP}    ${APP_PACKAGE}
+    ...    AND    log    安装成功
+
+uninstall_app
+    [Arguments]    ${APP_PACKAGE}    # 包名
+    [Documentation]    卸载包
+    Adb_Uninstall_Package    ${APP_PACKAGE}
+    ${status}    Is Package Installed    ${APP_PACKAGE}
+    Run_Keyword_If    '${status}'=='False'    log    卸载成功
+
+return_get_text
+    [Arguments]    ${ele}
+    [Documentation]    通过元素返回文本信息
+    ${get_ele_text}    get_text    ${ele}
+    log    获取元素文本: ${get_ele_text}
+    [Return]    ${get_ele_text}
+
+run_keyword_else_and
+    [Arguments]    ${status}    ${ele}    ${contain_ele}    ${log}    # ${status}传状态值、${ele}点击的元素、${contain_ele}包含的元素、${log}输出日志
+    [Documentation]    关键字返回状态，进行后续判断操作
+    run keyword if    '${status}'=='True'    click_element    ${ele}
+    ...    ELSE    run keywords    log    ${log}
+    ...    AND    sleep    3s
+    ...    AND    page should contain element    ${contain_ele}
+    ...    AND    Capture Page Screenshot    # appium-screenshot-.png
+
+for_list_click
+    [Arguments]    ${eles}    ${wait_time}    # ${eles}元素、${wait_time}等待时间
+    [Documentation]    使用for循环获取list
+    ${length}=    get_list_length    ${eles}    ${wait_time}
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    # \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    ${get_ele_text}
+    \    click_element    ${get_ele}
+    \    sleep    ${wait_time}
+    \    Capture Page Screenshot    # appium-screenshot-${index}.png
+    \    go back
+
+for_list_click_go_back
+    [Arguments]    ${eles}    ${wait_time}    # ${eles}元素、${wait_time}等待时间
+    [Documentation]    使用for循环获取list返回
+    ${length}    get_list_length    ${eles}    ${wait_time}
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    ${get_ele_text}
+    \    click_element    ${get_ele}
+    \    sleep    ${wait_time}
+    \    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断项目是否存在遮罩
+    \    Capture Page Screenshot    # appium-screenshot-${TEST_NAME}-${index}.png
+    \    go back
+
+if_for_list_click_go_back
+    [Arguments]    ${eles}    ${wait_time}    ${attribute_name}    # ${eles}元素、${wait_time}等待时间、${attribute_name}属性名称
+    [Documentation]    使用for循环获取list返回，获取元素属性，元素value返回值，判断是否进行后续操作
+    ${length}    get_list_length    ${eles}    ${wait_time}
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    @@@@@@@@@@@@@@@@@@@@@
+    \    ${value}    get_element_attribute    xpath=//android.widget.TextView[@text='${get_ele_text}']    ${attribute_name}
+    \    # \    ${value}    get_element_attribute    ${get_ele}    ${name}
+    \    log    ${value}
+    \    Run_Keyword_If    '${value}'=='false'    log    ${get_ele_text}不可点击！
+    \    ...    ELSE    run keywords    click_element    ${get_ele}
+    \    ...    AND    sleep    ${wait_time}
+    \    ...    AND    Capture Page Screenshot
+    \    ...    AND    go back
+
+if_for_list_click
+    [Arguments]    ${eles}    ${wait_time}    ${attribute_name}    ${should_ele}    ${should_text}    # ${eles}元素、${wait_time}等待时间、${attribute_name}属性名称、${should_ele}需要断言的位置元素、${should_text}断言文本
+    [Documentation]    使用for循环获取list返回，获取元素属性，元素value返回值，判断是否进行后续操作
+    ${length}    get_list_length    ${eles}    ${wait_time}
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    @@@@@@@@@@@@@@@@@@@@@
+    \    ${value}    get_element_attribute    xpath=//android.widget.TextView[@text='${get_ele_text}']    ${attribute_name}
+    \    # \    ${value}    get_element_attribute    ${get_ele}    ${attribute_name}
+    \    log    ${value}
+    \    Run_Keyword_If    '${value}'=='false'    log    ${get_ele_text}不可点击！
+    \    ...    ELSE    run keywords    click_element    ${get_ele}
+    \    ...    AND    get_elementTextShould_text    ${should_ele}    ${should_text}
+    \    ...    AND    Capture Page Screenshot
+    \    ...    AND    go back    #获取title是否与预期一致
+
+for_list_no_click_go_back
+    [Arguments]    ${eles}    ${wait_time}    ${no_click_text}    # ${eles}元素、${wait_time}等待时间、${no_click_text}是否可点击文本
+    [Documentation]    使用for循环获取list返回
+    ${length}    get_list_length    ${eles}    ${wait_time}
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    ${get_ele_text}
+    \    Run_Keyword_If    '${get_ele_text}'=='${no_click_text}'    log    ${get_ele_text}不可点击！
+    \    ...    ELSE    run keywords    click_element    ${get_ele}
+    \    ...    AND    sleep    ${wait_time}
+    \    ...    AND    Capture Page Screenshot
+    \    ...    AND    go back    # appium-screenshot-${index}.png
+
+for_list_enabled_go_back
+    [Arguments]    ${eles}    ${ele}    ${wait_time}    # ${eles}获取元素、${ele}验证元素、${wait_time}等待时间
+    [Documentation]    使用for循环获取list返回，并加入验证元素
+    ${length}=    get_list_length    ${eles}    ${wait_time}
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    ${get_ele_text}
+    \    click_element    ${get_ele}
+    \    sleep    ${wait_time}
+    \    click_find_ele_guide    ${guidePage_konw_elementById}    # 判断引导遮罩是否存在
+    \    get_elementShouldEnabled    ${ele}
+    \    Capture Page Screenshot    # appium-screenshot-${index}.png
+    \    go back
+
+forLess_list
+    [Arguments]    ${eles}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    使用for循环递减获取list
+    ${length}=    get_list_length    ${eles}    ${wait_time}
+    # log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}    0    -1    # FOR递减输出
+    \    log    ${index}-1
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}-1    ${wait_time}
+    \    # \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    ${get_ele_text}
+    \    click_element    ${get_ele}
+    \    sleep    ${wait_time}
+    \    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+get_element_attribute
+    [Arguments]    ${ele_locator}    ${name_or_value}
+    [Documentation]    获取元素属性：（name 或者 value)（包括clickable、checked、content-desc等）
+    ...    ${val} \ 获取元素属性 ${locator} ${name_or_value}
+    ...    例如：
+    ...    ${val} 获取元素属性 id=xxxx name
+    ...    ${val} 获取元素属性 id=xxxx value
+    ${value}    AppiumLibrary.Get Element Attribute    ${ele_locator}    ${name_or_value}
+    log    ${value}
+    [Return]    ${value}
+
+get_pageShouldContain_text
+    [Arguments]    ${ele}    ${expected}
+    [Documentation]    页面应该包含文本
+    wait_element    ${ele}    20s
+    ${get_text}    get text    ${ele}
+    log    get_pageShouldContain_text-获取元素得到文本信息：${get_text}
+    page should contain text    ${get_text}    ${expected}
+
+get_elementTextShould_text
+    [Arguments]    ${ele}    ${expected}
+    [Documentation]    获取文本与预期文本一致
+    wait_element    ${ele}    30s
+    Element Text Should Be    ${ele}    ${expected}
+
+get_elementShouldEnabled
+    [Arguments]    ${ele}
+    [Documentation]    元素应该可用
+    wait_element    ${ele}    30s
+    ${get_text}    get text    ${ele}
+    log    get_elementShouldEnabled-获取元素得到文本信息：${get_text}
+    element should be enabled    ${ele}
+
+get_elementShouldVisible
+    [Arguments]    ${ele}
+    [Documentation]    元素应该可见
+    wait_element    ${ele}    20s
+    Element Should Be Visible    ${ele}
+
+convert_to_int
+    [Arguments]    ${base}=
+    [Documentation]    转成int
+    ${res}    Convert To Integer    ${base}
+    [Return]    ${res}
+
+remove_app
+    [Arguments]    ${application_id}
+    [Documentation]    删除app
+    log    卸载app
+    Remove Application    ${application_id}
+
+get_key_dictionary
+    [Arguments]    ${dictionary}    ${key}    # ${dictionary}字典、${key}坐标x、y
+    [Documentation]    从字典获取某个字符串：${ele_location} = {"y": 478.0, "x": 36.0}
+    log    value: ${dictionary['${key}']}
+    [Return]    ${dictionary['${key}']}
+
+get_ele_location
+    [Arguments]    ${ele}    # ${{ele}元素
+    [Documentation]    获取元素位置坐标: Element 'com.xxxx.skyeye:id/tv_item_title' location: {'y': 478.0, 'x': 36.0}
+    ${ele_location}=    Get_Element_Location    ${ele}
+    [Return]    ${ele_location}
+
+random
+    [Documentation]    生成随机数
+    ${random_num}    Evaluate    random.randint(0, 9999)    random
+    log    ${random_num}
+    [Return]    ${random_num}
+
+return_keyword_statusOne_scren
+    [Arguments]    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+    [Documentation]    判断${ele_1}元素是否存在，存在点击元素${ele_2}操作，循环操作
+    ${result_1}=    return_keyword_status    ${ele_1}
+    # run keyword if    '${result_1}'=='True'    for_list_go_back    ${ele_1}    3s
+    run keyword if    '${result_1}'=='True'    for_list_enabled_go_back    ${ele_1}    ${ele_2}    6s
+    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+return_keyword_statusTwo_scren
+    [Arguments]    ${ele_1}    ${ele_2}    ${index}    ${boolean}
+    [Documentation]    判断${ele_1}元素是否存在，存在点击元素${ele_2}操作，循环操作
+    ${result_1}=    return_keyword_status    ${ele_1}
+    run keyword if    '${result_1}'=='True'    click_element    ${ele_1}
+    ${result_2}=    return_keyword_status    ${ele_2}
+    run keyword if    '${result_2}'=='True'    for_list_click_go_back    ${ele_2}    10s
+    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+return_keyword_status_scren
+    [Arguments]    ${ele_1}    ${ele_2}    ${boolean}
+    [Documentation]    判断${ele_1}元素是否存在，存在点击元素${ele_2}操作
+    ${result}=    return_keyword_status    ${ele_1}
+    run keyword if    '${result}'=='True'    click_element    ${ele_2}
+    sleep    5s
+    run keyword if    '${boolean}'=='True'    Capture Page Screenshot    # appium-screenshot-${index}.png
+
+get_pageshouldcontain_element
+    [Arguments]    ${ele}
+    [Documentation]    页面应该包含文本
+    Page Should Contain Element    ${ele}
+
+get_logcat
+    [Documentation]    获取当前设备的日志
+    log    获取设备${UDID}的日志
+    Get Android LogCat    ${UDID}
+
+click_find_ele_guide
+    [Arguments]    ${ele}    # ${ele}元素
+    [Documentation]    判断元素是否存在，存在点击关闭引导遮罩
+    ${result}    return_keyword_status    ${ele}
+    run keyword if    '${result}'=='False'    log    @@@@-【遮罩】未找到，不需要点击操作-@@@@
+    ...    ELSE    run keywords    log    ****-【遮罩】已找到，需要点击操作-****
+    ...    AND    wait_click_element    ${ele}    20s
+
+click_find_ele
+    [Arguments]    ${ele}    @{args}    # ${ele}元素，@{args}使用关键字操作
+    [Documentation]    判断元素是否存在，存在进行后续操作
+    ${result}    return_keyword_status    ${ele}
+    run keyword if    '${result}'=='False'    log    @@@@-【元素】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    ****-【元素】已找到，需要操作-****
+    ...    AND    @{args}    ${ele}
+
+scroll_ele
+    [Arguments]    ${start_ele}    ${end_ele}    ${wait_time}    # ${start_ele}开始位置元素、${end_ele}结束位置元素、${wait_time}等待时间
+    [Documentation]    从一个元素滚动到另一个元素
+    log    开始拖动
+    scroll    ${start_ele}    ${end_ele}    # com.xxxx.skyeye:id/iv_logo
+    sleep    ${wait_time}    # 5s
+
+long_press_ele
+    [Arguments]    ${ele}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    长按元素
+    log    开始长按
+    long_press    ${ele}
+    sleep    ${wait_time}
+
+click_new_page_should
+    [Arguments]    ${click_ele}    ${log_mes}    ${ele}    ${expected}    # ${click_ele}点击元素、${log_mes}提示信息、${ele}新页面元素、${expected}预期结果
+    [Documentation]    点击元素跳转新页面，并验证新页面的文本信息
+    log    ${log_mes}
+    wait_click_element    ${click_ele}    10s    # 跳转到新页面
+    log    获取文本是否与预期文本一致
+    get_elementTextShould_text    ${ele}    ${expected}    #获取title是否与预期一致
+    log    截图操作
+    Capture Page Screenshot
+
+clear_input_text
+    [Arguments]    ${ele}    ${message}    # ${ele}清空编辑框元素、${message}输入的文本
+    [Documentation]    清空编辑框内容，再进行输入
+    log    先【清空编辑框】
+    clear_text    ${ele}    # 清空文本信息
+    log    编辑框输入【${message}】
+    input_text    ${ele}    ${message}    #输入文本信息
+    Capture Page Screenshot

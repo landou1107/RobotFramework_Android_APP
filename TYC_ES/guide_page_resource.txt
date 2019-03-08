@@ -1,0 +1,13 @@
+*** Settings ***
+Documentation     引导页资源
+Library           AppiumLibrary
+Library           Custom
+Resource          android_element_resource.txt
+
+*** Keywords ***
+if_launch_click
+    [Documentation]    判断引导页是否存在运行按钮
+    ${result}    return_keyword_status    ${guidePage_launchBtn_elementById}    # 判断条款弹框的title元素是否存在
+    run keyword if    '${result}'=='False'    log    @@@@-【运行按钮】未找到，不需要操作-@@@@
+    ...    ELSE    run keywords    log    点击【运行按钮】
+    ...    AND    wait_click_element    ${guidePage_launchBtn_elementById}    10s    # 点击关闭引导页面

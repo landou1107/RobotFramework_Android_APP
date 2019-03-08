@@ -1,0 +1,2 @@
+*** Settings ***
+Resource          appium_config_resource.txt

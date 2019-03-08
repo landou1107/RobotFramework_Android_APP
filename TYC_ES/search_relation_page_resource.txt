@@ -1,0 +1,212 @@
+*** Settings ***
+Library           AppiumLibrary
+Resource          android_element_resource.txt    # Android元素
+Resource          text_resource.txt    # 文本信息
+Resource          check_resource.txt    # 校验文本信息
+Resource          login_page_resource.txt    # 登录相关操作
+Resource          action_resource.txt
+Resource          vip_page_resource.txt    # vip相关操作资源
+
+*** Keywords ***
+search_input_relation
+    [Documentation]    查看关系输入信息
+    wait_click_element    ${indexPage_companyTab_elementById}    20s
+    log    切换至查公司
+    wait_click_element    ${indexPage_searchRelationTab_elementById}    20s
+    log    点击首页的查关系
+    wait_click_element    ${indexPage_searchEditText_elementById}    20s
+    log    点击搜索编辑框
+    wait_click_element    ${relationPage_laver_elementById}    20s
+    # log    点击查关系样例图，关闭蒙层    # ${result}    return_keyword_status    ${relationPage_laver_elementById}    # run keyword if    '${result}'=='False'
+    ...    # log    没有查关系蒙层    # ...    # ELSE    run keywords    wait_click_element
+    ...    # ${relationPage_laver_elementById}    3s    # ...    # AND    log    关闭查关系蒙层
+    ...    # ...    # AND    Capture Page Screenshot    关闭查关系蒙层.png
+    get_pageShouldContain_text    ${relationPage_example_elementById}    ${check_relationExample_text}
+    log    编辑第一个查关系框
+    wait_click_element    ${relationPage_fromInput_elementById}    20s
+    get_elementShouldEnabled    ${search_companyInputText_elementById}
+    log    输入关系信息: ${relation_keyword_company}
+    Input Text    ${search_companyInputText_elementById}    ${relation_keyword_company}
+    sleep    3s
+    ${length}=    get_list_length    ${search_relationSelect1_elementById}    20s
+    log    ${length}
+    ${get_ele}=    get_index_elements    ${search_relationSelect1_elementById}    1    15s
+    return_get_text    ${search_relationSelect1_elementById}
+    click_element    ${get_ele}
+    wait_click_element    ${relationPage_toInput_elementById}    20s
+    log    已经关闭查关系蒙层
+    wait_click_element    ${relationPage_toInput_elementById}    20s
+    log    编辑第二个查关系框
+    # get_elementShouldEnabled    ${search_companyInputText_elementById}
+    log    输入关系信息: ${relation_keyword_human}
+    Input Text    ${search_companyInputText_elementById}    ${relation_keyword_human}
+    sleep    3s
+    ${length}=    get_list_length    ${search_relationSelect2_elementById}    20s
+    log    ${length}
+    ${get_ele}=    get_index_elements    ${search_relationSelect2_elementById}    1    15s
+    return_get_text    ${search_relationSelect2_elementById}
+    click_element    ${get_ele}
+    wait_click_element    ${relationPage_discoverBtn_elementById}    10s
+    # log    点击【查关系】按钮，跳转登录
+    # vip_jump_login
+    # sleep    10s
+    # #wait_click_element    ${relationPage_discoverBtn_elementById}    10s    8.4.1之后，登录成功后，不需要再点击【查关系按钮】，先注释掉
+    # #log    点击【查关系】按钮，加载查关系信息    \    8.4.1之后，登录成功后，不需要再点击【查关系按钮】，先注释掉
+    # Capture Page Screenshot
+    # search_relationFor_list    ${relationPage_relationPoint_elementById}    20s
+
+search_relation_list
+    [Documentation]    遍历查关系样例中所有公司和人，人需要登录操作，拖拽每个关系点到某个位置
+    search_relationFor_list    ${relationPage_relationPoint_elementById}    10s
+
+search_example_relation
+    [Documentation]    查看关系样例，v8.1.1查看样例不需要登录
+    wait_click_element    ${indexPage_searchRelationTab_elementById}    20s
+    log    切换至查关系
+    wait_click_element    ${indexPage_searchEditText_elementById}    20s
+    log    点击搜索编辑框
+    wait_click_element    ${relationPage_laver_elementById}    20s
+    log    点击查关系样例图，关闭蒙层    # ${result}    return_keyword_status    ${relationPage_laver_elementById}    # run keyword if    '${result}'=='True'
+    ...    # click_element    ${relationPage_laver_elementById}    # ...    # ELSE    log    没有查关系蒙层
+    ...    # ...    # AND    Capture Page Screenshot    没有查关系蒙层.png
+    # wait_click_element    ${relationPage_discoverBtn_elementById}    5s
+    # log    点击查关系按钮，关闭蒙层
+    get_pageShouldContain_text    ${relationPage_example_elementById}    ${check_relationExample_text}
+    wait_click_element    ${relationPage_example_elementById}    20s
+    # log    点击【查看样例】，打开登录页面
+    # wait_click_element    ${relationPage_discoverBtn_elementById}    5s
+    # log    点击查关系按钮，打开登录页面
+    # wait_click_element    ${relationPage_discoverBtn_elementById}    5s
+    # sleep    5s
+    # jump_login
+    log    点击【查关系】按钮
+    wait_click_element    ${relationPage_discoverBtn_elementById}    20s
+    wait_click_element    ${relationPage_discoverBtn_elementById}    20s
+
+search_relationFor_list
+    [Arguments]    ${eles}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    使用for循环获取list
+    log    遍历查关系所有圆点
+    ${length}=    get_list_length    ${eles}    ${wait_time}
+    # log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    # log    ${index}
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}    ${wait_time}
+    \    # log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    long_press_ele    ${get_ele}    5s
+    \    scroll_ele    ${get_ele}    ${relationPage_clearallBtn_elementById}    5s    # 拖拽某个元素到另外的位置
+    \    Capture Page Screenshot    # ${TEST_NAME}-${index}.png
+
+search_relationForLess_list
+    [Arguments]    ${eles}    ${wait_time}    # ${ele}元素、${wait_time}等待时间
+    [Documentation]    使用for循环递减获取list
+    ${length}=    get_list_length    ${eles}    ${wait_time}
+    # log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}    0    -1    # FOR递减输出
+    \    log    ${index}-1
+    \    ${get_ele}=    get_index_elements    ${eles}    ${index}-1    ${wait_time}
+    \    # \    log    ${get_ele}
+    \    ${get_ele_text}    get_text    ${get_ele}
+    \    log    ${get_ele_text}
+    \    click_element    ${get_ele}
+    \    sleep    ${wait_time}
+    \    Capture Page Screenshot    # ${TEST_NAME}-${index}-1.png
+
+search_delRelationPoint_cancel
+    [Documentation]    查关系，使用for循环递减，删除关系点，取消操作
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    10s
+    wait_click_element    ${relationPage_editBtn_elementById}    10s
+    search_relationForLess_list    ${relationPage_relationPoint_elementById}    10s
+    wait_click_element    ${relationPage_restoreBtn_elementById}    10s
+    log    撤销所有操作
+    wait_click_element    ${relationPage_cancelBtn_elementById}    10s
+    log    取消保存
+    Capture Page Screenshot    # 撤销删除的关系点.png
+
+search_delRelationPoint_save
+    [Documentation]    使用for循环递减，删除关系点，保存操作
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    10s
+    wait_click_element    ${relationPage_editBtn_elementById}    10s
+    search_relationForLess_list    ${relationPage_relationPoint_elementById}    10s
+    wait_click_element    ${relationPage_saveBtn_elementById}    10s
+    log    确定保存
+    Capture Page Screenshot    # 删除关系点.png
+
+search_relationClearAll
+    [Documentation]    查关系中，清空相关操作
+    wait_click_element    ${relationPage_clearallBtn_elementById}    5s
+    log    点击【清空】按钮
+    wait_click_element    ${window_cancelBtn_elementById}    5s
+    log    清空操作，点击【取消】按钮
+    wait_click_element    ${relationPage_clearallBtn_elementById}    5s
+    log    点击【清空】按钮
+    wait_click_element    ${window_okBtn_elementById}    5s
+    log    清空操作，点击【确认】按钮
+    get_pageShouldContain_text    ${relationPage_example_elementById}    ${check_relationExample_text}
+    log    已经返回查关系页
+
+search_relation_Screen
+    [Documentation]    查关系，操作-全屏和退出全屏操作
+    wait_click_element    ${relationPage_fullScreenBtn_elementById}    10s
+    log    已经进入全屏模式
+    wait_click_element    ${relationPage_exitFullScreenBtn_elementById}    10s
+    log    已经退出全屏模式
+
+search_relation_moreScan
+    [Documentation]    查关系，操作-扫一扫操作
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    10s
+    log    打开更多操作
+    wait_click_element    ${relationPage_scanBtn_elementById}    10s
+    log    扫一扫操作
+    get_elementShouldVisible    ${scanPage_Btn_elementById}
+    go back
+
+search_relation_moreSave
+    [Documentation]    查关系，操作-保存
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    10s
+    log    打开更多操作
+    wait_click_element    ${relationPage_downSaveBtn_elementById}    10s
+    log    保存操作
+    go back
+
+search_relation_moreShare
+    [Documentation]    查关系，操作-分享
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    10s
+    log    打开更多操作
+    wait_click_element    ${relationPage_shareBtn_elementById}    10s
+    log    分享操作
+    wait_click_element    ${share_cancelBtn_elementById}    10s
+    log    取消分享操作
+
+search_example_relation_vip
+    [Arguments]    ${CAPTURE_NAME}    # 截图命名
+    [Documentation]    查关系遍历样例
+    wait_click_element    ${indexPage_searchRelationTab_elementById}    5s
+    wait_click_element    ${indexPage_searchEditText_elementById}    5s
+    wait_click_element    ${relationPage_laver_elementById}    5s
+    ${get_relation_text}    get text    ${relationPage_example_elementById}
+    log    ${get_relation_text}
+    page should contain text    ${get_relation_text}    ${check_relationExample_text}
+    wait_click_element    ${relationPage_example_elementById}    5s
+    sleep    3s
+    vip_jump_login
+    wait_click_element    ${relationPage_discoverBtn_elementById}    5s
+    wait_click_element    ${relationPage_discoverBtn_elementById}    5s
+    ${length}=    get_list_length    ${relationPage_relationPoint_elementById}    10s
+    log    ${length}
+    : FOR    ${index}    IN RANGE    ${length}
+    \    log    ${index}
+    \    ${get_ele}=    get_index_elements    ${relationPage_relationPoint_elementById}    ${index}    5s
+    \    log    ${get_ele}
+    \    click_element    ${get_ele}
+    \    sleep    10s
+    \    Capture Page Screenshot    # ${TEST_NAME}-${index}.png
+    \    go back
+    wait_click_element    ${relationPage_fullscreenBtn_elementById}    5s
+    Capture Page Screenshot    # ${CAPTURE_NAME}
+    wait_click_element    ${relationPage_exitFullScreenBtn_elementById}    5s
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    3s
+    Capture Page Screenshot    # ${CAPTURE_NAME}
+    wait_click_element    ${relationPage_mapMoreBtn_elementById}    3s
+    Capture Page Screenshot    # ${CAPTURE_NAME}
